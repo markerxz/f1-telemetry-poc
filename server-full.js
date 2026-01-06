@@ -222,7 +222,7 @@ udpServer.on('message', (msg, rinfo) => {
     
     // Temporary debug: log first few packets as hex
     if (hexdumpCounter < 5) {
-        console.log(`[HEX DUMP ${hexdumpCounter + 1}] Packet ID: ${msg.readUInt8(5)} | Size: ${msg.length}`);
+        console.log(`[HEX DUMP ${hexdumpCounter + 1}] Packet ID: ${msg.readUInt8(6)} | Size: ${msg.length}`);
         console.log(msg.slice(0, 64).toString('hex').match(/.{1,32}/g).join('\n'));
         hexdumpCounter++;
     }
@@ -231,7 +231,7 @@ udpServer.on('message', (msg, rinfo) => {
     parsePacket(msg);
     
     // Debug: Log packet type distribution
-    const packetId = msg.length >= 6 ? msg.readUInt8(5) : -1;
+    const packetId = msg.length >= 7 ? msg.readUInt8(6) : -1;
     if (packetId !== 1 && packetId !== -1 && latestData.packetsReceived % 20 === 0) {
         const packetTypes = ['Motion', 'Session', 'Lap', 'Event', 'Participants', 'Car Setup', 'Telemetry', 'Car Status', 'Final Classification', 'Lobby Info', 'Car Damage', 'Session History', 'Tyre Sets', 'Motion Ex'];
         const packetName = packetTypes[packetId] || `Unknown(${packetId})`;
