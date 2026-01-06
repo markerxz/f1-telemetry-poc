@@ -65,9 +65,9 @@ client.on('message', (msg, rinfo) => {
         
         // Packet ID 1 = Session Data
         if (packetId === 1 && msg.length >= 753) {
-            const trackId = msg.readInt8(29);
+            const trackId = msg.readInt8(36); // FIXED: Track ID is at offset 36, not 29!
             const trackName = TRACK_NAMES[trackId] || `Track ${trackId}`;
-            const sessionType = msg.readUInt8(30);
+            const sessionType = msg.readUInt8(31); // Session type likely at 31
             const sessionTypes = ['Unknown', 'P1', 'P2', 'P3', 'Short P', 'Q1', 'Q2', 'Q3', 'Short Q', 'OSQ', 'Race', 'Race 2', 'Race 3', 'Time Trial'];
             const sessionName = sessionTypes[sessionType] || 'Unknown';
             
