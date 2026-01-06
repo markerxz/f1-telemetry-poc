@@ -86,38 +86,49 @@ function formatLapTime(ms) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
 }
 
-// Parse F1 telemetry packets
+// Parse F1 25 telemetry packets (2024 format)
 function parsePacket(buffer) {
     try {
-        if (buffer.length < 24) return;
+        if (buffer.length < 29) return; // Minimum header size for F1 2024
         
-        // Read packet header
+        // F1 2024/25 Packet Header (29 bytes)
         const packetFormat = buffer.readUInt16LE(0);
-        const packetId = buffer.readUInt8(6);
+        const gameMajorVersion = buffer.readUInt8(2);
+        const gameMinorVersion = buffer.readUInt8(3);
+        const packetVersion = buffer.readUInt8(4);
+        const packetId = buffer.readUInt8(5);
+        const playerCarIndex = buffer.readUInt8(21);
         
         // Packet ID 6 = Car Telemetry
-        if (packetId === 6 && buffer.length >= 1347) {
-            const playerIndex = buffer.readUInt8(20);
-            const offset = 24 + (playerIndex * 60); // Each car data is 60 bytes
+        if (packetId === 6) {
+            // Header is 29 bytes, each car telemetry is 66 bytes in F1 2024
+            const baseOffset = 29;
+            const carDataSize = 66;
+            const offset = baseOffset + (playerCarIndex * carDataSize);
             
-            if (offset + 60 <= buffer.length) {
-                latestData.speed = buffer.readUInt16LE(offset);
+            if (buffer.length >= offset + carDataSize) {
+                // Car Telemetry Data structure for F1 2024
+                latestData.speed = buffer.readUInt16LE(offset + 0);
                 latestData.throttle = Math.round(buffer.readFloatLE(offset + 2) * 100);
                 latestData.steering = buffer.readFloatLE(offset + 6);
                 latestData.brake = Math.round(buffer.readFloatLE(offset + 10) * 100);
                 latestData.gear = buffer.readInt8(offset + 15);
                 latestData.rpm = buffer.readUInt16LE(offset + 16);
                 latestData.drs = buffer.readUInt8(offset + 18);
+                latestData.maxRpm = 15000;
             }
         }
         
-        // Packet ID 2 = Lap Data
-        if (packetId === 2 && buffer.length >= 1131) {
-            const playerIndex = buffer.readUInt8(20);
-            const offset = 24 + (playerIndex * 53); // Each lap data is 53 bytes
+        // Packet ID 2 = Lap Data  
+        if (packetId === 2) {
+            // Header 29 bytes, each lap data is 56 bytes in F1 2024
+            const baseOffset = 29;
+            const lapDataSize = 56;
+            const offset = baseOffset + (playerCarIndex * lapDataSize);
             
-            if (offset + 53 <= buffer.length) {
-                latestData.lastLapTime = buffer.readUInt32LE(offset);
+            if (buffer.length >= offset + lapDataSize) {
+                // Lap Data structure
+                latestData.lastLapTime = buffer.readUInt32LE(offset + 0);
                 latestData.lastLapTimeStr = formatLapTime(latestData.lastLapTime);
                 
                 latestData.currentLapTime = buffer.readUInt32LE(offset + 4);
@@ -126,40 +137,47 @@ function parsePacket(buffer) {
                 latestData.sector1Time = buffer.readUInt16LE(offset + 8);
                 latestData.sector1TimeStr = latestData.sector1Time > 0 ? formatLapTime(latestData.sector1Time) : '--:--.---';
                 
-                latestData.sector2Time = buffer.readUInt16LE(offset + 10);
+                latestData.sector2Time = buffer.readUInt16LE(offset + 12);
                 latestData.sector2TimeStr = latestData.sector2Time > 0 ? formatLapTime(latestData.sector2Time) : '--:--.---';
                 
-                const sector3Time = latestData.lastLapTime - latestData.sector1Time - latestData.sector2Time;
-                if (sector3Time > 0 && latestData.lastLapTime > 0) {
-                    latestData.sector3Time = sector3Time;
-                    latestData.sector3TimeStr = formatLapTime(sector3Time);
+                // Calculate sector 3
+                if (latestData.lastLapTime > 0 && latestData.sector1Time > 0 && latestData.sector2Time > 0) {
+                    const sector3Time = latestData.lastLapTime - latestData.sector1Time - latestData.sector2Time;
+                    if (sector3Time > 0) {
+                        latestData.sector3Time = sector3Time;
+                        latestData.sector3TimeStr = formatLapTime(sector3Time);
+                    }
                 }
                 
+                latestData.lapNumber = buffer.readUInt8(offset + 22);
+                
                 // Track best lap
-                if (latestData.lastLapTime > 0 && latestData.lastLapTime < latestData.bestLapTime) {
+                if (latestData.lastLapTime > 1000 && (latestData.bestLapTime === 0 || latestData.lastLapTime < latestData.bestLapTime)) {
                     latestData.bestLapTime = latestData.lastLapTime;
                     latestData.bestLapTimeStr = formatLapTime(latestData.bestLapTime);
                 }
                 
                 // Update Singapore GP best
-                if (latestData.trackName === 'Singapore' && latestData.lastLapTime > 0) {
+                if (latestData.trackName === 'Singapore' && latestData.lastLapTime > 1000) {
                     if (latestData.lastLapTime < singaporeBestLap.lapTime) {
                         singaporeBestLap.lapTime = latestData.lastLapTime;
                         singaporeBestLap.sector1 = latestData.sector1Time;
                         singaporeBestLap.sector2 = latestData.sector2Time;
                         singaporeBestLap.sector3 = latestData.sector3Time;
                         singaporeBestLap.timestamp = new Date().toISOString();
+                        console.log(`[Singapore Record] New best lap: ${formatLapTime(singaporeBestLap.lapTime)}`);
                     }
                 }
-                
-                latestData.lapNumber = buffer.readUInt8(offset + 19);
             }
         }
         
         // Packet ID 1 = Session
-        if (packetId === 1 && buffer.length >= 632) {
-            const trackId = buffer.readInt8(24);
-            latestData.trackName = TRACK_NAMES[trackId] || `Track ${trackId}`;
+        if (packetId === 1) {
+            // Session packet header + session data
+            if (buffer.length >= 40) {
+                const trackId = buffer.readInt8(31); // Track ID offset in session packet
+                latestData.trackName = TRACK_NAMES[trackId] || `Track ${trackId}`;
+            }
         }
         
     } catch (err) {
@@ -226,8 +244,10 @@ udpServer.on('message', (msg, rinfo) => {
     // Parse the packet
     parsePacket(msg);
     
+    // Debug: Log packet details every 60 packets
     if (latestData.packetsReceived % 60 === 0) {
-        console.log(`[UDP] ${latestData.packetsReceived} packets | Track: ${latestData.trackName} | Speed: ${latestData.speed} km/h | Gear: ${latestData.gear}`);
+        const packetId = msg.length >= 6 ? msg.readUInt8(5) : -1;
+        console.log(`[UDP] Packets: ${latestData.packetsReceived} | Size: ${msg.length} | ID: ${packetId} | Track: ${latestData.trackName} | Speed: ${latestData.speed} km/h | Throttle: ${latestData.throttle}% | Steering: ${latestData.steering.toFixed(2)}`);
     }
 });
 
