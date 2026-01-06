@@ -64,6 +64,7 @@ npm install
 # Step 9: Start server
 echo "🚀 Starting server with PM2..."
 pm2 delete f1-telemetry 2>/dev/null || true
+pm2 delete f1-telemetry 2>/dev/null || true
 pm2 start server-full.js --name f1-telemetry
 pm2 save
 
