@@ -30,7 +30,11 @@ let latestData = {
 // HTTP Server - Serve dashboard
 const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
-        const html = `
+        const filePath = path.join(__dirname, 'public', 'index-simple.html');
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                // Fallback to inline HTML if file not found
+                const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -132,8 +136,13 @@ const server = http.createServer((req, res) => {
     </script>
 </body>
 </html>`;
-        res.writeHead(200, { 'Content-Type': 'text/html' });
-        res.end(html);
+                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                res.end(html);
+            } else {
+                res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+                res.end(data);
+            }
+        });
     } else if (req.url === '/api/data') {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify(latestData));
