@@ -98,6 +98,9 @@ function parsePacket(buffer) {
         const packetVersion = buffer.readUInt8(4);
         const packetId = buffer.readUInt8(5);
         const playerCarIndex = buffer.readUInt8(21);
+        if (latestData.packetsReceived % 120 === 0) {
+            console.log(`[Header] Packet ${packetId} | PlayerCarIndex: ${playerCarIndex}`);
+        }
         
         // Packet ID 6 = Car Telemetry
         if (packetId === 6) {
@@ -248,11 +251,11 @@ udpServer.on('message', (msg, rinfo) => {
     parsePacket(msg);
     
     // Debug: Log packet type distribution
-    if (latestData.packetsReceived % 120 === 0) {
-        const packetId = msg.length >= 6 ? msg.readUInt8(5) : -1;
+    const packetId = msg.length >= 6 ? msg.readUInt8(5) : -1;
+    if (packetId !== 1 && packetId !== -1 && latestData.packetsReceived % 20 === 0) {
         const packetTypes = ['Motion', 'Session', 'Lap', 'Event', 'Participants', 'Car Setup', 'Telemetry', 'Car Status', 'Final Classification', 'Lobby Info', 'Car Damage', 'Session History', 'Tyre Sets', 'Motion Ex'];
         const packetName = packetTypes[packetId] || `Unknown(${packetId})`;
-        console.log(`[UDP] Total: ${latestData.packetsReceived} | Last Packet: ${packetName} (ID:${packetId}, Size:${msg.length}) | Track: ${latestData.trackName} | Speed: ${latestData.speed} km/h | Throttle: ${latestData.throttle}% | Brake: ${latestData.brake}%`);
+        console.log(`[UDP] Packet ${packetName} (ID:${packetId}) received | Size: ${msg.length}`);
     }
 });
 
