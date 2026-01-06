@@ -15,7 +15,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
-const { F1TelemetryClient, constants } = require('@racehub-io/f1-telemetry-client');
+const { F1TelemetryClient } = require('f1-22-telemetry');
 
 // Configuration
 const UDP_PORT = process.env.UDP_PORT || 20777;

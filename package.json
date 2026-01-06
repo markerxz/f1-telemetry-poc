@@ -17,7 +17,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@racehub-io/f1-telemetry-client": "^2.0.0",
+    "f1-22-telemetry": "^1.0.7",
     "ws": "^8.14.2"
   },
   "devDependencies": {
