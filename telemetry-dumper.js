@@ -71,7 +71,9 @@ process.on('SIGINT', () => {
         const carDataSizes = [60, 62, 64, 66, 68, 70];
         
         carDataSizes.forEach(carDataSize => {
-            const offset = 29 + (playerIdx * carDataSize);
+            // If playerIdx is 255 (spectator/invalid), use car 0
+            const carIdx = playerIdx === 255 ? 0 : playerIdx;
+            const offset = 29 + (carIdx * carDataSize);
             
             if (msg.length >= offset + 20) {
                 console.log(`\n--- Car Data Size: ${carDataSize} bytes, Offset: ${offset} ---`);
@@ -106,13 +108,15 @@ process.on('SIGINT', () => {
             }
         });
         
-        console.log('\n\nFirst 128 bytes of player car data:');
-        const offset = 29 + (playerIdx * 66);
-        const hex = msg.slice(offset, offset + 128).toString('hex').match(/../g);
-        for (let i = 0; i < 128 && hex[i]; i += 16) {
-            const line = hex.slice(i, i + 16).join(' ');
-            const off = i.toString().padStart(3, '0');
-            console.log(`  ${off}: ${line}`);
+        console.log('\n\nFirst 128 bytes after header (car data for all cars):');
+        const dataStart = 29;
+        const hex = msg.slice(dataStart, dataStart + 128).toString('hex').match(/../g);
+        if (hex) {
+            for (let i = 0; i < 128 && hex[i]; i += 16) {
+                const line = hex.slice(i, i + 16).join(' ');
+                const off = i.toString().padStart(3, '0');
+                console.log(`  ${off}: ${line}`);
+            }
         }
     } else {
         console.log('No telemetry packet captured!');
@@ -132,7 +136,9 @@ process.on('SIGINT', () => {
         const lapDataSizes = [50, 52, 54, 55, 56, 58, 60];
         
         lapDataSizes.forEach(lapDataSize => {
-            const offset = 29 + (playerIdx * lapDataSize);
+            // If playerIdx is 255 (spectator/invalid), use car 0
+            const carIdx = playerIdx === 255 ? 0 : playerIdx;
+            const offset = 29 + (carIdx * lapDataSize);
             
             if (msg.length >= offset + 24) {
                 console.log(`\n--- Lap Data Size: ${lapDataSize} bytes, Offset: ${offset} ---`);
