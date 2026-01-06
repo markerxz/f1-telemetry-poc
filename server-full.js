@@ -173,10 +173,13 @@ function parsePacket(buffer) {
         
         // Packet ID 1 = Session
         if (packetId === 1) {
-            // Session packet header + session data
-            if (buffer.length >= 40) {
-                const trackId = buffer.readInt8(31); // Track ID offset in session packet
+            // Session packet: header (29 bytes) + session data
+            if (buffer.length >= 632) {
+                const trackId = buffer.readInt8(29); // Track ID is first byte after header
                 latestData.trackName = TRACK_NAMES[trackId] || `Track ${trackId}`;
+                const sessionType = buffer.readUInt8(30);
+                const sessionTypes = ['Unknown', 'P1', 'P2', 'P3', 'Short P', 'Q1', 'Q2', 'Q3', 'Short Q', 'OSQ', 'Race', 'Race 2', 'Race 3', 'Time Trial'];
+                latestData.sessionType = sessionTypes[sessionType] || 'Unknown';
             }
         }
         
@@ -244,10 +247,12 @@ udpServer.on('message', (msg, rinfo) => {
     // Parse the packet
     parsePacket(msg);
     
-    // Debug: Log packet details every 60 packets
-    if (latestData.packetsReceived % 60 === 0) {
+    // Debug: Log packet type distribution
+    if (latestData.packetsReceived % 120 === 0) {
         const packetId = msg.length >= 6 ? msg.readUInt8(5) : -1;
-        console.log(`[UDP] Packets: ${latestData.packetsReceived} | Size: ${msg.length} | ID: ${packetId} | Track: ${latestData.trackName} | Speed: ${latestData.speed} km/h | Throttle: ${latestData.throttle}% | Steering: ${latestData.steering.toFixed(2)}`);
+        const packetTypes = ['Motion', 'Session', 'Lap', 'Event', 'Participants', 'Car Setup', 'Telemetry', 'Car Status', 'Final Classification', 'Lobby Info', 'Car Damage', 'Session History', 'Tyre Sets', 'Motion Ex'];
+        const packetName = packetTypes[packetId] || `Unknown(${packetId})`;
+        console.log(`[UDP] Total: ${latestData.packetsReceived} | Last Packet: ${packetName} (ID:${packetId}, Size:${msg.length}) | Track: ${latestData.trackName} | Speed: ${latestData.speed} km/h | Throttle: ${latestData.throttle}% | Brake: ${latestData.brake}%`);
     }
 });
 
