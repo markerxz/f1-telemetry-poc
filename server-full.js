@@ -242,10 +242,19 @@ function broadcastData() {
 // UDP Server
 const udpServer = dgram.createSocket('udp4');
 
+let hexdumpCounter = 0;
+
 udpServer.on('message', (msg, rinfo) => {
     latestData.packetsReceived++;
     latestData.connected = true;
     latestData.timestamp = Date.now();
+    
+    // Temporary debug: log first few packets as hex
+    if (hexdumpCounter < 5) {
+        console.log(`[HEX DUMP ${hexdumpCounter + 1}] Packet ID: ${msg.readUInt8(5)} | Size: ${msg.length}`);
+        console.log(msg.slice(0, 64).toString('hex').match(/.{1,32}/g).join('\n'));
+        hexdumpCounter++;
+    }
     
     // Parse the packet
     parsePacket(msg);
