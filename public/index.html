@@ -12,14 +12,16 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
             font-family: 'Segoe UI', 'Arial', sans-serif;
             background: #0a0a0a;
             color: #fff;
             overflow: hidden;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             position: fixed;
+            top: 0;
+            left: 0;
         }
 
         /* Top Bar */
@@ -29,7 +31,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 3px solid #00d9ff;
+            border-bottom: 3px solid #a4d233;
             height: 100px;
         }
 
@@ -42,12 +44,10 @@
         .track-name {
             font-size: 3em;
             font-weight: bold;
-            background: linear-gradient(90deg, #00d9ff 0%, #ff0080 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #a4d233;
             text-transform: uppercase;
             letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(164, 210, 51, 0.6);
         }
 
         .session-info {
@@ -506,6 +506,7 @@
         .lap-history {
             max-height: 300px;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .lap-history-item {
@@ -607,7 +608,7 @@
         .bottom-bar {
             height: 100px;
             background: #0f0f0f;
-            border-top: 3px solid #00d9ff;
+            border-top: 3px solid #a4d233;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -628,11 +629,8 @@
         .branding-text {
             font-size: 2.4em;
             font-weight: bold;
-            background: linear-gradient(90deg, #00ffff 0%, #ff00ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+            color: #a4d233;
+            text-shadow: 0 0 30px rgba(164, 210, 51, 0.6);
         }
 
         .telemetry-stats {
@@ -648,9 +646,9 @@
         }
 
         .stat-value {
-            color: #00ffff;
+            color: #a4d233;
             font-weight: bold;
-            text-shadow: 0 0 15px rgba(0, 255, 255, 0.6);
+            text-shadow: 0 0 15px rgba(164, 210, 51, 0.6);
         }
 
         /* Scrollbar */
