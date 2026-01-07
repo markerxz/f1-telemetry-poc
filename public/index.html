@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 25 Live Telemetry - Oracle</title>
+    <title>F1 25 Live Telemetry - Singapore GP Time Trial</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * {
@@ -13,154 +13,281 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: #000;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: #0a0a0a;
             color: #fff;
             overflow: hidden;
+            width: 3840px;
+            height: 2160px;
         }
 
         /* Top Bar */
         .top-bar {
-            background: linear-gradient(90deg, #1a1a1a 0%, #2d2d2d 100%);
-            padding: 10px 20px;
+            background: linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 100%);
+            padding: 20px 40px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e10600;
+            border-bottom: 3px solid #00d9ff;
+            height: 100px;
         }
 
         .track-info {
             display: flex;
-            gap: 30px;
+            gap: 50px;
             align-items: center;
         }
 
         .track-name {
-            font-size: 1.5em;
+            font-size: 3em;
             font-weight: bold;
-            color: #e10600;
+            background: linear-gradient(90deg, #00d9ff 0%, #ff0080 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
         }
 
         .session-info {
             display: flex;
+            gap: 30px;
+            font-size: 1.8em;
+            color: #888;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
             gap: 15px;
-            font-size: 0.9em;
+            font-size: 1.5em;
+            color: #888;
+        }
+
+        .live-dot {
+            width: 20px;
+            height: 20px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 20px rgba(0,255,0,0.8);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.9); }
         }
 
         /* Main Layout - 3 columns */
         .main-container {
             display: grid;
-            grid-template-columns: 1fr 1.2fr 1fr;
-            height: calc(100vh - 60px);
-            gap: 10px;
-            padding: 10px;
+            grid-template-columns: 1fr 1.4fr 1fr;
+            height: calc(2160px - 200px);
+            gap: 20px;
+            padding: 20px;
         }
 
         /* Left Column - Charts */
         .left-column {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .chart-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 25px;
             flex: 1;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.1);
         }
 
         .chart-title {
-            font-size: 0.85em;
-            color: #888;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            color: #00d9ff;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
+            font-weight: bold;
         }
 
         .chart-container {
             position: relative;
-            height: calc(100% - 30px);
+            height: calc(100% - 60px);
         }
 
         /* Center Column - Main Display */
         .center-column {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .speed-gauge {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
+        .speed-lap-box {
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 40px;
             text-align: center;
-            flex: 1;
+            flex: 1.2;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            box-shadow: 0 0 40px rgba(255, 0, 128, 0.1);
+        }
+
+        .speed-section {
             display: flex;
             flex-direction: column;
             justify-content: center;
+            align-items: center;
+            border-right: 2px solid #222;
+        }
+
+        .speed-label {
+            font-size: 2em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
         }
 
         .speed-value {
-            font-size: 8em;
+            font-size: 12em;
             font-weight: bold;
-            color: #00ff00;
+            color: #00d9ff;
             line-height: 1;
-            text-shadow: 0 0 30px rgba(0,255,0,0.5);
+            text-shadow: 0 0 50px rgba(0, 217, 255, 0.6);
+            font-family: 'Courier New', monospace;
         }
 
         .speed-unit {
-            font-size: 1.5em;
+            font-size: 2.5em;
             color: #666;
             margin-top: 10px;
         }
 
+        .lap-section {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .lap-label {
+            font-size: 2em;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+        }
+
+        .lap-time {
+            font-size: 8em;
+            font-weight: bold;
+            color: #ff0080;
+            line-height: 1;
+            text-shadow: 0 0 50px rgba(255, 0, 128, 0.6);
+            font-family: 'Courier New', monospace;
+        }
+
+        .lap-delta {
+            font-size: 3em;
+            font-weight: bold;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .lap-delta.faster {
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
+        }
+
+        .lap-delta.slower {
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+
         .gear-rpm-box {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 10px;
+            grid-template-columns: 0.8fr 1.2fr;
+            gap: 15px;
         }
 
         .gear-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.1);
+        }
+
+        .gear-label {
+            font-size: 1.6em;
+            color: #666;
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
         .gear-value {
-            font-size: 6em;
+            font-size: 10em;
             font-weight: bold;
-            color: #00ff00;
-            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+            color: #00d9ff;
+            text-shadow: 0 0 40px rgba(0, 217, 255, 0.6);
+            font-family: 'Courier New', monospace;
+        }
+
+        .drs-indicator {
+            margin-top: 20px;
+            font-size: 2em;
+            font-weight: bold;
+            padding: 10px 30px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+
+        .drs-on {
+            background: #00ff00;
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.8);
+        }
+
+        .drs-off {
+            background: #333;
+            color: #666;
         }
 
         .rpm-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.1);
         }
 
         .rpm-label {
-            font-size: 0.8em;
-            color: #888;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            color: #666;
+            margin-bottom: 20px;
+            text-transform: uppercase;
         }
 
         .rpm-bar {
             width: 100%;
-            height: 40px;
+            height: 80px;
             background: #1a1a1a;
-            border-radius: 20px;
+            border-radius: 40px;
             overflow: hidden;
             position: relative;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .rpm-fill {
@@ -173,19 +300,21 @@
             position: absolute;
             width: 100%;
             text-align: center;
-            line-height: 40px;
+            line-height: 80px;
             font-weight: bold;
-            text-shadow: 1px 1px 2px #000;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px #000;
         }
 
         .controls-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 20px;
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
+            gap: 30px;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.1);
         }
 
         /* Steering Wheel */
@@ -193,30 +322,31 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .steering-label {
-            font-size: 0.8em;
-            color: #888;
+            font-size: 1.6em;
+            color: #666;
             text-transform: uppercase;
         }
 
         .steering-wheel {
-            width: 100px;
-            height: 100px;
-            border: 4px solid #e10600;
+            width: 180px;
+            height: 180px;
+            border: 6px solid #00d9ff;
             border-radius: 50%;
             position: relative;
             transition: transform 0.05s;
             background: radial-gradient(circle, #222 0%, #111 100%);
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
         }
 
         .steering-center {
             position: absolute;
-            width: 35px;
-            height: 35px;
-            background: #e10600;
+            width: 60px;
+            height: 60px;
+            background: #00d9ff;
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -224,25 +354,27 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.7em;
+            font-size: 1.5em;
             font-weight: bold;
+            color: #000;
         }
 
         .steering-grip {
             position: absolute;
-            width: 12px;
-            height: 50px;
-            background: #555;
-            border-radius: 6px;
-            top: 5px;
+            width: 20px;
+            height: 90px;
+            background: #ff0080;
+            border-radius: 10px;
+            top: 8px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .steering-value {
-            font-size: 1.2em;
+            font-size: 2.2em;
             font-weight: bold;
-            color: #00ff00;
+            color: #00d9ff;
+            font-family: 'Courier New', monospace;
         }
 
         /* Pedals */
@@ -250,21 +382,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
         }
 
         .pedal-label {
-            font-size: 0.8em;
-            color: #888;
+            font-size: 1.6em;
+            color: #666;
             text-transform: uppercase;
         }
 
         .pedal-bar {
-            width: 60px;
-            height: 100px;
+            width: 100px;
+            height: 180px;
             background: #1a1a1a;
-            border: 2px solid #333;
-            border-radius: 6px;
+            border: 3px solid #333;
+            border-radius: 10px;
             position: relative;
             overflow: hidden;
         }
@@ -278,121 +410,248 @@
 
         .throttle-fill {
             background: linear-gradient(to top, #00ff00 0%, #00aa00 100%);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.6);
         }
 
         .brake-fill {
             background: linear-gradient(to top, #ff0000 0%, #aa0000 100%);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
         }
 
         .pedal-value {
-            margin-top: 5px;
-            font-size: 1.1em;
+            margin-top: 10px;
+            font-size: 2em;
             font-weight: bold;
+            font-family: 'Courier New', monospace;
         }
 
         /* Right Column - Data */
         .right-column {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
         .data-box {
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 15px;
+            background: #0f0f0f;
+            border: 2px solid #1a1a1a;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 0.1);
         }
 
         .data-title {
-            font-size: 0.85em;
-            color: #888;
-            margin-bottom: 10px;
+            font-size: 1.6em;
+            color: #ff0080;
+            margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-        }
-
-        .lap-time-display {
-            font-family: 'Courier New', monospace;
-            font-size: 2em;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
             font-weight: bold;
-            color: #00ff00;
-            text-align: center;
-            padding: 10px 0;
-            text-shadow: 0 0 10px rgba(0,255,0,0.5);
         }
 
         .sectors-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 10px;
+            gap: 10px;
         }
 
         .sector-item {
             text-align: center;
-            padding: 8px;
+            padding: 15px;
             background: #1a1a1a;
-            border-radius: 4px;
+            border-radius: 10px;
+            border: 2px solid #222;
         }
 
         .sector-label {
-            font-size: 0.7em;
-            color: #888;
-            margin-bottom: 3px;
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
 
         .sector-value {
-            font-size: 0.9em;
+            font-size: 1.6em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            color: #00ff00;
+            color: #00d9ff;
+        }
+
+        .sector-best {
+            font-size: 1.2em;
+            color: #888;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sector-purple {
+            background: linear-gradient(135deg, #8b00ff 0%, #5500aa 100%);
+        }
+
+        .sector-green {
+            background: linear-gradient(135deg, #00aa00 0%, #006600 100%);
+        }
+
+        .sector-yellow {
+            background: linear-gradient(135deg, #ffaa00 0%, #cc8800 100%);
+        }
+
+        .lap-history {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .lap-history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.4em;
+            border: 2px solid #222;
+        }
+
+        .lap-history-item.best {
+            background: linear-gradient(90deg, #ff0080 0%, #8b00ff 100%);
+            border: 2px solid #ff0080;
+            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+        }
+
+        .lap-number {
+            color: #666;
+        }
+
+        .lap-time {
+            color: #00d9ff;
+            font-weight: bold;
+        }
+
+        .lap-delta {
+            font-size: 1.2em;
+            margin-left: 15px;
+        }
+
+        .track-map-container {
+            position: relative;
+            flex: 1;
+            background: #0a0a0a;
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .track-map {
+            width: 100%;
+            height: 100%;
+            filter: brightness(1.2);
+        }
+
+        .car-position {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ff0080;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 30px rgba(255, 0, 128, 1);
+            animation: carPulse 1s infinite;
+            z-index: 10;
+        }
+
+        @keyframes carPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
         }
 
         .telemetry-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .telemetry-item {
             background: #1a1a1a;
-            padding: 10px;
-            border-radius: 4px;
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
+            border: 2px solid #222;
         }
 
         .telemetry-label {
-            font-size: 0.7em;
-            color: #888;
-            margin-bottom: 5px;
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
 
         .telemetry-value {
-            font-size: 1.3em;
+            font-size: 2em;
             font-weight: bold;
             color: #ff9900;
-        }
-
-        .singapore-record {
-            background: linear-gradient(135deg, #e10600 0%, #aa0000 100%);
-            border: 2px solid #ff4444;
-        }
-
-        .record-time {
-            font-size: 1.8em;
-            font-weight: bold;
             font-family: 'Courier New', monospace;
-            text-align: center;
-            padding: 10px 0;
         }
 
-        @media (max-width: 1600px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
+        /* Bottom Bar */
+        .bottom-bar {
+            height: 100px;
+            background: #0f0f0f;
+            border-top: 3px solid #00d9ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .branding {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .ais-logo {
+            height: 60px;
+        }
+
+        .branding-text {
+            font-size: 1.8em;
+            color: #666;
+        }
+
+        .telemetry-stats {
+            display: flex;
+            gap: 40px;
+            font-size: 1.4em;
+            color: #666;
+        }
+
+        .stat-label {
+            color: #444;
+            margin-right: 10px;
+        }
+
+        .stat-value {
+            color: #00d9ff;
+            font-weight: bold;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #00d9ff;
+            border-radius: 4px;
         }
     </style>
 </head>
@@ -400,16 +659,14 @@
     <!-- Top Bar -->
     <div class="top-bar">
         <div class="track-info">
-            <div class="track-name" id="trackName">SINGAPORE</div>
+            <div class="track-name" id="trackName">SINGAPORE GRAND PRIX - TIME TRIAL</div>
             <div class="session-info">
-                <div>Lap <span id="lapNumber">0</span></div>
-                <div>|</div>
-                <div id="sessionType">Time Trial</div>
+                <div>LAP <span id="lapNumber">0</span></div>
             </div>
         </div>
-        <div style="display: flex; gap: 20px; align-items: center;">
-            <div style="font-size: 0.9em; color: #888;">Oracle Live Telemetry</div>
-            <div style="width: 10px; height: 10px; background: #00ff00; border-radius: 50%; animation: pulse 2s infinite;"></div>
+        <div class="live-indicator">
+            <span>LIVE</span>
+            <div class="live-dot"></div>
         </div>
     </div>
 
@@ -418,35 +675,51 @@
         <!-- LEFT COLUMN - Time Charts -->
         <div class="left-column">
             <div class="chart-box">
-                <div class="chart-title">⚡ Speed & Throttle</div>
+                <div class="chart-title">⚡ SPEED</div>
                 <div class="chart-container">
                     <canvas id="speedChart"></canvas>
                 </div>
             </div>
             <div class="chart-box">
-                <div class="chart-title">🔴 Brake</div>
+                <div class="chart-title">🟢 THROTTLE</div>
+                <div class="chart-container">
+                    <canvas id="throttleChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title">🔴 BRAKE</div>
                 <div class="chart-container">
                     <canvas id="brakeChart"></canvas>
                 </div>
             </div>
             <div class="chart-box">
-                <div class="chart-title">⚙️ Gear</div>
+                <div class="chart-title">🌀 G-FORCE</div>
                 <div class="chart-container">
-                    <canvas id="gearChart"></canvas>
+                    <canvas id="gforceChart"></canvas>
                 </div>
             </div>
         </div>
 
         <!-- CENTER COLUMN - Main Display -->
         <div class="center-column">
-            <div class="speed-gauge">
-                <div class="speed-value" id="speed">0</div>
-                <div class="speed-unit">km/h</div>
+            <div class="speed-lap-box">
+                <div class="speed-section">
+                    <div class="speed-label">SPEED</div>
+                    <div class="speed-value" id="speed">0</div>
+                    <div class="speed-unit">km/h</div>
+                </div>
+                <div class="lap-section">
+                    <div class="lap-label">CURRENT LAP</div>
+                    <div class="lap-time" id="currentLap">0:00.000</div>
+                    <div class="lap-delta" id="lapDelta">--</div>
+                </div>
             </div>
             
             <div class="gear-rpm-box">
                 <div class="gear-box">
+                    <div class="gear-label">GEAR</div>
                     <div class="gear-value" id="gear">N</div>
+                    <div class="drs-indicator drs-off" id="drsIndicator">DRS OFF</div>
                 </div>
                 <div class="rpm-box">
                     <div class="rpm-label">ENGINE RPM</div>
@@ -485,72 +758,117 @@
             </div>
         </div>
 
-        <!-- RIGHT COLUMN - Lap Times & Data -->
+        <!-- RIGHT COLUMN - Lap Data & Map -->
         <div class="right-column">
             <div class="data-box">
-                <div class="data-title">⏱️ Current Lap</div>
-                <div class="lap-time-display" id="currentLap">0:00.000</div>
+                <div class="data-title">⏱️ SECTOR TIMES</div>
+                <div class="sectors-grid">
+                    <div class="sector-item" id="sector1Box">
+                        <div class="sector-label">SECTOR 1</div>
+                        <div class="sector-value" id="sector1">--:--.---</div>
+                        <div class="sector-best" id="sector1Best">--:--.---</div>
+                    </div>
+                    <div class="sector-item" id="sector2Box">
+                        <div class="sector-label">SECTOR 2</div>
+                        <div class="sector-value" id="sector2">--:--.---</div>
+                        <div class="sector-best" id="sector2Best">--:--.---</div>
+                    </div>
+                    <div class="sector-item" id="sector3Box">
+                        <div class="sector-label">SECTOR 3</div>
+                        <div class="sector-value" id="sector3">--:--.---</div>
+                        <div class="sector-best" id="sector3Best">--:--.---</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <div style="color: #666; font-size: 1.4em; margin-bottom: 8px;">BEST LAP</div>
+                    <div style="font-size: 3em; font-weight: bold; color: #ff0080; font-family: 'Courier New', monospace;" id="bestLap">--:--.---</div>
+                </div>
             </div>
 
-            <div class="data-box">
-                <div class="data-title">🏁 Last Lap</div>
-                <div class="lap-time-display" id="lastLap">0:00.000</div>
-                <div class="sectors-grid">
-                    <div class="sector-item">
-                        <div class="sector-label">S1</div>
-                        <div class="sector-value" id="sector1">--:--.---</div>
-                    </div>
-                    <div class="sector-item">
-                        <div class="sector-label">S2</div>
-                        <div class="sector-value" id="sector2">--:--.---</div>
-                    </div>
-                    <div class="sector-item">
-                        <div class="sector-label">S3</div>
-                        <div class="sector-value" id="sector3">--:--.---</div>
-                    </div>
+            <div class="data-box" style="flex: 1;">
+                <div class="data-title">📋 LAP HISTORY</div>
+                <div class="lap-history" id="lapHistory">
+                    <div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet</div>
+                </div>
+            </div>
+
+            <div class="data-box" style="flex: 1.2;">
+                <div class="data-title">🗺️ TRACK POSITION</div>
+                <div class="track-map-container">
+                    <img src="Singapore_street_circuit_v2.svg" alt="Singapore Circuit" class="track-map" id="trackMap">
+                    <div class="car-position" id="carPosition"></div>
                 </div>
             </div>
 
             <div class="data-box">
-                <div class="data-title">🌡️ Temperatures</div>
+                <div class="data-title">🌡️ TEMPERATURES</div>
                 <div class="telemetry-grid">
                     <div class="telemetry-item">
-                        <div class="telemetry-label">Engine</div>
+                        <div class="telemetry-label">ENGINE</div>
                         <div class="telemetry-value" id="engineTemp">0°C</div>
                     </div>
                     <div class="telemetry-item">
-                        <div class="telemetry-label">Brake FL</div>
-                        <div class="telemetry-value" id="brakeFL">0°C</div>
+                        <div class="telemetry-label">BRAKE AVG</div>
+                        <div class="telemetry-value" id="brakeAvg">0°C</div>
                     </div>
                     <div class="telemetry-item">
-                        <div class="telemetry-label">Tyre FL</div>
+                        <div class="telemetry-label">TYRE FL</div>
                         <div class="telemetry-value" id="tyreFL">0°C</div>
                     </div>
                     <div class="telemetry-item">
-                        <div class="telemetry-label">Tyre FR</div>
+                        <div class="telemetry-label">TYRE FR</div>
                         <div class="telemetry-value" id="tyreFR">0°C</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">TYRE RL</div>
+                        <div class="telemetry-value" id="tyreRL">0°C</div>
+                    </div>
+                    <div class="telemetry-item">
+                        <div class="telemetry-label">TYRE RR</div>
+                        <div class="telemetry-value" id="tyreRR">0°C</div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div class="data-box singapore-record">
-                <div class="data-title" style="color: #fff;">🏆 SINGAPORE GP RECORD</div>
-                <div class="record-time" id="sgBestLap">--:--.---</div>
-            </div>
+    <!-- Bottom Bar -->
+    <div class="bottom-bar">
+        <div class="branding">
+            <img src="AIS_Square_White.png" alt="AIS Cloud" class="ais-logo">
+            <div class="branding-text">Powered by AIS Cloud</div>
+        </div>
+        <div class="telemetry-stats">
+            <div><span class="stat-label">DATA RATE:</span> <span class="stat-value" id="dataRate">60 pkt/s</span></div>
+            <div><span class="stat-label">LATENCY:</span> <span class="stat-value" id="latency">12ms</span></div>
+            <div><span class="stat-label">PACKETS:</span> <span class="stat-value" id="packetCount">0</span></div>
         </div>
     </div>
 
     <script>
         const ws = new WebSocket('ws://' + window.location.host);
         
-        const maxDataPoints = 100;
+        const maxDataPoints = 150; // 30 seconds at 60Hz
         const timeLabels = [];
         const speedData = [];
         const throttleData = [];
         const brakeData = [];
-        const gearData = [];
+        const gforceLateralData = [];
+        const gforceLongitudinalData = [];
 
-        // Speed & Throttle Chart
+        let bestLapTime = null;
+        let bestSector1 = null;
+        let bestSector2 = null;
+        let bestSector3 = null;
+        let lapHistory = [];
+        let packetCount = 0;
+        let trackLength = 5000; // Default Singapore track length in meters
+
+        // Chart.js default configuration
+        Chart.defaults.color = '#666';
+        Chart.defaults.borderColor = '#222';
+
+        // Speed Chart
         const speedChart = new Chart(document.getElementById('speedChart'), {
             type: 'line',
             data: {
@@ -558,20 +876,12 @@
                 datasets: [{
                     label: 'Speed',
                     data: speedData,
-                    borderColor: '#00ff00',
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                    borderWidth: 2,
-                    tension: 0.4,
-                    pointRadius: 0
-                }, {
-                    label: 'Throttle',
-                    data: throttleData,
-                    borderColor: '#ffff00',
-                    backgroundColor: 'rgba(255, 255, 0, 0.1)',
-                    borderWidth: 2,
+                    borderColor: '#00d9ff',
+                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
+                    borderWidth: 3,
                     tension: 0.4,
                     pointRadius: 0,
-                    yAxisID: 'y1'
+                    fill: true
                 }]
             },
             options: {
@@ -581,7 +891,34 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { display: false, min: 0, max: 400 },
-                    y1: { display: false, min: 0, max: 100 },
+                    x: { display: false }
+                }
+            }
+        });
+
+        // Throttle Chart
+        const throttleChart = new Chart(document.getElementById('throttleChart'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Throttle',
+                    data: throttleData,
+                    borderColor: '#00ff00',
+                    backgroundColor: 'rgba(0, 255, 0, 0.3)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { display: false, min: 0, max: 100 },
                     x: { display: false }
                 }
             }
@@ -597,7 +934,7 @@
                     data: brakeData,
                     borderColor: '#ff0000',
                     backgroundColor: 'rgba(255, 0, 0, 0.3)',
-                    borderWidth: 2,
+                    borderWidth: 3,
                     fill: true,
                     tension: 0.4,
                     pointRadius: 0
@@ -615,19 +952,26 @@
             }
         });
 
-        // Gear Chart
-        const gearChart = new Chart(document.getElementById('gearChart'), {
+        // G-Force Chart
+        const gforceChart = new Chart(document.getElementById('gforceChart'), {
             type: 'line',
             data: {
                 labels: timeLabels,
                 datasets: [{
-                    label: 'Gear',
-                    data: gearData,
-                    borderColor: '#00ffff',
-                    backgroundColor: 'rgba(0, 255, 255, 0.2)',
-                    borderWidth: 2,
-                    stepped: true,
-                    fill: true,
+                    label: 'Lateral',
+                    data: gforceLateralData,
+                    borderColor: '#ff0080',
+                    backgroundColor: 'rgba(255, 0, 128, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    pointRadius: 0
+                }, {
+                    label: 'Longitudinal',
+                    data: gforceLongitudinalData,
+                    borderColor: '#ffff00',
+                    backgroundColor: 'rgba(255, 255, 0, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
                     pointRadius: 0
                 }]
             },
@@ -637,51 +981,185 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { display: false, min: -1, max: 8 },
+                    y: { display: false, min: -5, max: 5 },
                     x: { display: false }
                 }
             }
         });
 
+        function updateTrackPosition(lapDistance) {
+            if (!trackLength || lapDistance === undefined) return;
+            
+            const progress = lapDistance / trackLength;
+            const carPos = document.getElementById('carPosition');
+            const trackMap = document.getElementById('trackMap');
+            const mapRect = trackMap.getBoundingClientRect();
+            
+            // Simplified position calculation (circular approximation)
+            // In reality, you'd map this to the actual SVG path coordinates
+            const centerX = mapRect.width / 2;
+            const centerY = mapRect.height / 2;
+            const radius = Math.min(mapRect.width, mapRect.height) * 0.35;
+            
+            const angle = progress * 2 * Math.PI - Math.PI / 2; // Start at top
+            const x = centerX + radius * Math.cos(angle);
+            const y = centerY + radius * Math.sin(angle);
+            
+            carPos.style.left = x + 'px';
+            carPos.style.top = y + 'px';
+        }
+
+        function updateLapHistory() {
+            const historyEl = document.getElementById('lapHistory');
+            if (lapHistory.length === 0) {
+                historyEl.innerHTML = '<div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet</div>';
+                return;
+            }
+
+            historyEl.innerHTML = lapHistory.map((lap, index) => {
+                const delta = lap.delta !== null ? (lap.delta >= 0 ? `+${lap.delta.toFixed(3)}` : lap.delta.toFixed(3)) : '';
+                const isBest = lap.isBest ? ' best' : '';
+                return `
+                    <div class="lap-history-item${isBest}">
+                        <span class="lap-number">Lap ${lap.lapNum}</span>
+                        <span class="lap-time">${lap.timeStr}</span>
+                        <span class="lap-delta" style="color: ${lap.delta < 0 ? '#00ff00' : '#ff0000'}">${delta}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            packetCount++;
+            
+            // Update packet counter
+            document.getElementById('packetCount').textContent = packetCount.toLocaleString();
+            
+            // Update track length if available
+            if (data.trackLength) {
+                trackLength = data.trackLength;
+            }
             
             // Update displays
-            document.getElementById('trackName').textContent = data.trackName || 'SINGAPORE';
             document.getElementById('lapNumber').textContent = data.lapNumber || 0;
-            document.getElementById('sessionType').textContent = data.sessionType || 'Time Trial';
-            
             document.getElementById('speed').textContent = data.speed || 0;
             
+            // Gear
             const gear = data.gear;
             let gearText = 'N';
             if (gear === -1) gearText = 'R';
             else if (gear > 0) gearText = gear;
             document.getElementById('gear').textContent = gearText;
             
+            // DRS
+            const drsIndicator = document.getElementById('drsIndicator');
+            if (data.drs === 1) {
+                drsIndicator.textContent = 'DRS ON';
+                drsIndicator.className = 'drs-indicator drs-on';
+            } else {
+                drsIndicator.textContent = 'DRS OFF';
+                drsIndicator.className = 'drs-indicator drs-off';
+            }
+            
+            // RPM
             const rpmPercent = Math.min(((data.rpm || 0) / 15000) * 100, 100);
             document.getElementById('rpmFill').style.width = rpmPercent + '%';
             document.getElementById('rpmText').textContent = (data.rpm || 0).toLocaleString();
             
+            // Steering
             const steeringDegrees = (data.steering || 0) * 450;
             document.getElementById('steeringWheel').style.transform = `rotate(${steeringDegrees}deg)`;
             document.getElementById('steeringValue').textContent = steeringDegrees.toFixed(1) + '°';
             
+            // Pedals
             document.getElementById('throttleFill').style.height = (data.throttle || 0) + '%';
             document.getElementById('throttleValue').textContent = data.throttle || 0;
             document.getElementById('brakeFill').style.height = (data.brake || 0) + '%';
             document.getElementById('brakeValue').textContent = data.brake || 0;
             
+            // Lap times
             document.getElementById('currentLap').textContent = data.currentLapTimeStr || '0:00.000';
-            document.getElementById('lastLap').textContent = data.lastLapTimeStr || '0:00.000';
             document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
             document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
             document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
             
+            // Update best lap and sectors
+            if (data.lastLapTime && data.lastLapTime > 0) {
+                if (!bestLapTime || data.lastLapTime < bestLapTime) {
+                    bestLapTime = data.lastLapTime;
+                    
+                    // Add to lap history
+                    const delta = lapHistory.length > 0 && lapHistory[lapHistory.length - 1].time ? 
+                        (data.lastLapTime - lapHistory[lapHistory.length - 1].time) / 1000 : null;
+                    
+                    lapHistory.push({
+                        lapNum: data.lapNumber - 1,
+                        time: data.lastLapTime,
+                        timeStr: data.lastLapTimeStr,
+                        delta: delta,
+                        isBest: true
+                    });
+                    
+                    // Mark all others as not best
+                    lapHistory.forEach((lap, i) => {
+                        if (i < lapHistory.length - 1) lap.isBest = false;
+                    });
+                    
+                    updateLapHistory();
+                }
+            }
+            
+            // Update best sectors
+            if (data.sector1Time && data.sector1Time > 0) {
+                if (!bestSector1 || data.sector1Time < bestSector1) {
+                    bestSector1 = data.sector1Time;
+                }
+            }
+            if (data.sector2Time && data.sector2Time > 0) {
+                if (!bestSector2 || data.sector2Time < bestSector2) {
+                    bestSector2 = data.sector2Time;
+                }
+            }
+            if (data.sector3Time && data.sector3Time > 0) {
+                if (!bestSector3 || data.sector3Time < bestSector3) {
+                    bestSector3 = data.sector3Time;
+                }
+            }
+            
+            // Display best lap and sectors
+            document.getElementById('bestLap').textContent = bestLapTime ? formatTime(bestLapTime) : '--:--.---';
+            document.getElementById('sector1Best').textContent = bestSector1 ? formatTime(bestSector1) : '--:--.---';
+            document.getElementById('sector2Best').textContent = bestSector2 ? formatTime(bestSector2) : '--:--.---';
+            document.getElementById('sector3Best').textContent = bestSector3 ? formatTime(bestSector3) : '--:--.---';
+            
+            // Delta to best lap
+            if (bestLapTime && data.currentLapTime > 0) {
+                const delta = (data.currentLapTime - bestLapTime) / 1000;
+                const deltaEl = document.getElementById('lapDelta');
+                if (delta < 0) {
+                    deltaEl.textContent = delta.toFixed(3);
+                    deltaEl.className = 'lap-delta faster';
+                } else {
+                    deltaEl.textContent = '+' + delta.toFixed(3);
+                    deltaEl.className = 'lap-delta slower';
+                }
+            }
+            
+            // Temperatures
             document.getElementById('engineTemp').textContent = (data.engineTemp || 0) + '°C';
-            document.getElementById('brakeFL').textContent = (data.brakeFL || 0) + '°C';
+            const brakeAvg = data.brakeFL && data.brakeFR && data.brakeRL && data.brakeRR ? 
+                Math.round((data.brakeFL + data.brakeFR + data.brakeRL + data.brakeRR) / 4) : 0;
+            document.getElementById('brakeAvg').textContent = brakeAvg + '°C';
             document.getElementById('tyreFL').textContent = (data.tyreFL || 0) + '°C';
             document.getElementById('tyreFR').textContent = (data.tyreFR || 0) + '°C';
+            document.getElementById('tyreRL').textContent = (data.tyreRL || 0) + '°C';
+            document.getElementById('tyreRR').textContent = (data.tyreRR || 0) + '°C';
+            
+            // Track position
+            if (data.lapDistance !== undefined) {
+                updateTrackPosition(data.lapDistance);
+            }
             
             // Update charts
             if (timeLabels.length >= maxDataPoints) {
@@ -689,35 +1167,38 @@
                 speedData.shift();
                 throttleData.shift();
                 brakeData.shift();
-                gearData.shift();
+                gforceLateralData.shift();
+                gforceLongitudinalData.shift();
             }
             
             timeLabels.push('');
             speedData.push(data.speed || 0);
             throttleData.push(data.throttle || 0);
             brakeData.push(data.brake || 0);
-            gearData.push(data.gear || 0);
+            gforceLateralData.push(data.gForceLateral || 0);
+            gforceLongitudinalData.push(data.gForceLongitudinal || 0);
             
             speedChart.update('none');
+            throttleChart.update('none');
             brakeChart.update('none');
-            gearChart.update('none');
+            gforceChart.update('none');
         };
 
-        // Singapore GP Record
-        function updateSingaporeRecord() {
-            fetch('/api/singapore-best')
-                .then(r => r.json())
-                .then(data => {
-                    document.getElementById('sgBestLap').textContent = data.lapTime || '--:--.---';
-                });
+        function formatTime(ms) {
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const millis = ms % 1000;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}.${millis.toString().padStart(3, '0')}`;
         }
 
-        setInterval(updateSingaporeRecord, 5000);
-        updateSingaporeRecord();
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
 
-        const style = document.createElement('style');
-        style.textContent = '@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }';
-        document.head.appendChild(style);
+        ws.onclose = () => {
+            console.log('WebSocket closed. Attempting to reconnect...');
+            setTimeout(() => window.location.reload(), 3000);
+        };
     </script>
 </body>
 </html>
