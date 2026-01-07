@@ -43,10 +43,10 @@ let latestData = {
     tyreRL: 0,
     tyreRR: 0,
     
-    // G-Force
-    gforceLat: 0,
-    gforceLong: 0,
-    gforceVert: 0,
+    // G-Force (matching HTML variable names)
+    gForceLateral: 0,
+    gForceLongitudinal: 0,
+    gForceVertical: 0,
     
     // Lap data
     currentLapTime: 0,
@@ -63,6 +63,10 @@ let latestData = {
     sector2TimeStr: '--:--.---',
     sector3Time: 0,
     sector3TimeStr: '--:--.---',
+    
+    // Track position
+    lapDistance: 0,
+    trackLength: 5063, // Singapore track length in meters
     
     // Session info
     trackName: 'Unknown',
@@ -153,10 +157,10 @@ function parsePacket(buffer) {
             const offset = 29 + (carIdx * carMotionSize);
             
             if (buffer.length >= offset + 48) {
-                // G-Force values (3 x float)
-                latestData.gforceLat = buffer.readFloatLE(offset + 36);
-                latestData.gforceLong = buffer.readFloatLE(offset + 40);
-                latestData.gforceVert = buffer.readFloatLE(offset + 44);
+                // G-Force values (3 x float) - matching HTML variable names
+                latestData.gForceLateral = buffer.readFloatLE(offset + 36);
+                latestData.gForceLongitudinal = buffer.readFloatLE(offset + 40);
+                latestData.gForceVertical = buffer.readFloatLE(offset + 44);
             }
         }
         
@@ -191,6 +195,10 @@ function parsePacket(buffer) {
                     latestData.sector3TimeStr = '--:--.---';
                 }
                 
+                // Lap distance (float at offset 22)
+                latestData.lapDistance = buffer.readFloatLE(offset + 22);
+                
+                // Lap number
                 latestData.lapNumber = buffer.readUInt8(offset + 30);
             }
         }
@@ -202,6 +210,9 @@ function parsePacket(buffer) {
             const sessionType = buffer.readUInt8(35);
             const sessionTypes = ['Unknown', 'P1', 'P2', 'P3', 'Short P', 'Q1', 'Q2', 'Q3', 'Short Q', 'OSQ', 'Race', 'Race 2', 'Race 3', 'Time Trial'];
             latestData.sessionType = sessionTypes[sessionType] || 'Unknown';
+            
+            // Track length (uint16 at offset 33)
+            latestData.trackLength = buffer.readUInt16LE(33);
         }
         
     } catch (err) {
@@ -251,10 +262,10 @@ wss.on('connection', (ws) => {
 function broadcastData() {
     const message = JSON.stringify(latestData);
     wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(message);
-        }
-    });
+    if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+    }
+  });
 }
 
 // UDP Server
@@ -298,7 +309,7 @@ setInterval(() => {
 process.on('SIGINT', () => {
     console.log('\n[Shutdown]');
     udpServer.close();
-    server.close();
-    process.exit(0);
+  server.close();
+  process.exit(0);
 });
 

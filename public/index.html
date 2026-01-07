@@ -104,12 +104,13 @@
         }
 
         .chart-title {
-            font-size: 1.6em;
-            color: #00d9ff;
+            font-size: 2.4em;
+            color: #00ffff;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
             font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
         }
 
         .chart-container {
@@ -154,11 +155,11 @@
         }
 
         .speed-value {
-            font-size: 12em;
+            font-size: 18em;
             font-weight: bold;
-            color: #00d9ff;
+            color: #00ffff;
             line-height: 1;
-            text-shadow: 0 0 50px rgba(0, 217, 255, 0.6);
+            text-shadow: 0 0 60px rgba(0, 255, 255, 0.8);
             font-family: 'Courier New', monospace;
         }
 
@@ -184,11 +185,11 @@
         }
 
         .lap-time {
-            font-size: 8em;
+            font-size: 12em;
             font-weight: bold;
-            color: #ff0080;
+            color: #ff00ff;
             line-height: 1;
-            text-shadow: 0 0 50px rgba(255, 0, 128, 0.6);
+            text-shadow: 0 0 60px rgba(255, 0, 255, 0.8);
             font-family: 'Courier New', monospace;
         }
 
@@ -235,10 +236,10 @@
         }
 
         .gear-value {
-            font-size: 10em;
+            font-size: 16em;
             font-weight: bold;
-            color: #00d9ff;
-            text-shadow: 0 0 40px rgba(0, 217, 255, 0.6);
+            color: #00ffff;
+            text-shadow: 0 0 50px rgba(0, 255, 255, 0.9);
             font-family: 'Courier New', monospace;
         }
 
@@ -441,14 +442,15 @@
         }
 
         .data-title {
-            font-size: 1.6em;
-            color: #ff0080;
+            font-size: 2.4em;
+            color: #ff00ff;
             margin-bottom: 15px;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 2px solid #333;
+            letter-spacing: 3px;
+            border-bottom: 3px solid #ff00ff;
             padding-bottom: 10px;
             font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
         }
 
         .sectors-grid {
@@ -473,14 +475,15 @@
         }
 
         .sector-value {
-            font-size: 1.6em;
+            font-size: 2.4em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            color: #00d9ff;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
         }
 
         .sector-best {
-            font-size: 1.2em;
+            font-size: 1.8em;
             color: #888;
             margin-top: 5px;
             font-family: 'Courier New', monospace;
@@ -506,19 +509,19 @@
         .lap-history-item {
             display: flex;
             justify-content: space-between;
-            padding: 12px;
-            margin-bottom: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
             background: #1a1a1a;
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: 'Courier New', monospace;
-            font-size: 1.4em;
-            border: 2px solid #222;
+            font-size: 2em;
+            border: 2px solid #333;
         }
 
         .lap-history-item.best {
-            background: linear-gradient(90deg, #ff0080 0%, #8b00ff 100%);
-            border: 2px solid #ff0080;
-            box-shadow: 0 0 20px rgba(255, 0, 128, 0.4);
+            background: linear-gradient(90deg, #ff00ff 0%, #00ffff 100%);
+            border: 3px solid #ff00ff;
+            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
         }
 
         .lap-number {
@@ -591,10 +594,11 @@
         }
 
         .telemetry-value {
-            font-size: 2em;
+            font-size: 2.8em;
             font-weight: bold;
             color: #ff9900;
             font-family: 'Courier New', monospace;
+            text-shadow: 0 0 15px rgba(255, 153, 0, 0.6);
         }
 
         /* Bottom Bar */
@@ -863,6 +867,7 @@
         let lapHistory = [];
         let packetCount = 0;
         let trackLength = 5000; // Default Singapore track length in meters
+        let lastRecordedLapTime = 0; // Track last lap to avoid duplicates
 
         // Chart.js default configuration
         Chart.defaults.color = '#666';
@@ -876,9 +881,9 @@
                 datasets: [{
                     label: 'Speed',
                     data: speedData,
-                    borderColor: '#00d9ff',
-                    backgroundColor: 'rgba(0, 217, 255, 0.1)',
-                    borderWidth: 3,
+                    borderColor: '#00ffff',
+                    backgroundColor: 'rgba(0, 255, 255, 0.2)',
+                    borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0,
                     fill: true
@@ -960,17 +965,17 @@
                 datasets: [{
                     label: 'Lateral',
                     data: gforceLateralData,
-                    borderColor: '#ff0080',
-                    backgroundColor: 'rgba(255, 0, 128, 0.1)',
-                    borderWidth: 3,
+                    borderColor: '#ff00ff',
+                    backgroundColor: 'rgba(255, 0, 255, 0.2)',
+                    borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0
                 }, {
                     label: 'Longitudinal',
                     data: gforceLongitudinalData,
                     borderColor: '#ffff00',
-                    backgroundColor: 'rgba(255, 255, 0, 0.1)',
-                    borderWidth: 3,
+                    backgroundColor: 'rgba(255, 255, 0, 0.2)',
+                    borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0
                 }]
@@ -1084,30 +1089,37 @@
             document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
             document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
             
-            // Update best lap and sectors
-            if (data.lastLapTime && data.lastLapTime > 0) {
-                if (!bestLapTime || data.lastLapTime < bestLapTime) {
+            // Update lap history - add EVERY completed lap
+            if (data.lastLapTime && data.lastLapTime > 0 && data.lastLapTime !== lastRecordedLapTime) {
+                lastRecordedLapTime = data.lastLapTime;
+                
+                // Calculate delta to previous lap
+                const delta = lapHistory.length > 0 ? 
+                    (data.lastLapTime - lapHistory[lapHistory.length - 1].time) / 1000 : null;
+                
+                // Check if this is the best lap
+                const isNewBest = !bestLapTime || data.lastLapTime < bestLapTime;
+                if (isNewBest) {
                     bestLapTime = data.lastLapTime;
-                    
-                    // Add to lap history
-                    const delta = lapHistory.length > 0 && lapHistory[lapHistory.length - 1].time ? 
-                        (data.lastLapTime - lapHistory[lapHistory.length - 1].time) / 1000 : null;
-                    
-                    lapHistory.push({
-                        lapNum: data.lapNumber - 1,
-                        time: data.lastLapTime,
-                        timeStr: data.lastLapTimeStr,
-                        delta: delta,
-                        isBest: true
-                    });
-                    
-                    // Mark all others as not best
+                }
+                
+                // Add lap to history
+                lapHistory.push({
+                    lapNum: lapHistory.length + 1,
+                    time: data.lastLapTime,
+                    timeStr: data.lastLapTimeStr,
+                    delta: delta,
+                    isBest: isNewBest
+                });
+                
+                // Mark all others as not best if this is the new best
+                if (isNewBest) {
                     lapHistory.forEach((lap, i) => {
                         if (i < lapHistory.length - 1) lap.isBest = false;
                     });
-                    
-                    updateLapHistory();
                 }
+                
+                updateLapHistory();
             }
             
             // Update best sectors
