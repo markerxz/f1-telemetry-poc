@@ -1,14 +1,13 @@
 #!/usr/bin/env node
 
 /**
- * F1 25 CLI Inspector - Decodes and displays telemetry in SSH terminal
- * Shows: Track, Speed, Throttle, Brake, Steering, Lap Times, etc.
+ * F1 25 CLI Inspector - CORRECT implementation using official EA spec
  */
 
 const dgram = require('dgram');
 const client = dgram.createSocket('udp4');
 
-// Track names
+// Track names (official spec)
 const TRACK_NAMES = {
     0: 'Melbourne', 1: 'Paul Ricard', 2: 'Shanghai', 3: 'Bahrain', 4: 'Barcelona',
     5: 'Monaco', 6: 'Montreal', 7: 'Silverstone', 8: 'Hockenheim', 9: 'Hungaroring',
@@ -29,14 +28,14 @@ function formatLapTime(ms) {
 }
 
 let packetCount = 0;
-let playerCarIndex = 0;
 
 client.on('listening', () => {
     console.log('');
     console.log('╔════════════════════════════════════════════════════════╗');
-    console.log('║   🏎️  F1 CLI Inspector listening on 0.0.0.0:20777    ║');
+    console.log('║   🏎️  F1 25 CLI Inspector (OFFICIAL SPEC)            ║');
     console.log('╚════════════════════════════════════════════════════════╝');
     console.log('');
+    console.log('Listening on 0.0.0.0:20777');
     console.log('Waiting for F1 25 data...');
     console.log('');
 });
@@ -47,74 +46,93 @@ client.on('message', (msg, rinfo) => {
     try {
         if (msg.length < 29) return;
         
-        // F1 2025 Header - Packet ID is at offset 6
-        const packetFormat = msg.readUInt16LE(0);
-        const packetVersion = msg.readUInt8(4);
-        const packetId = msg.readUInt8(6); // CORRECT offset for F1 2025
-        playerCarIndex = msg.readUInt8(22);
+        // PacketHeader (29 bytes) - Official EA spec
+        const packetFormat = msg.readUInt16LE(0);      // 2025
+        const gameYear = msg.readUInt8(2);             // 25
+        const gameMajorVersion = msg.readUInt8(3);     // Game major version
+        const gameMinorVersion = msg.readUInt8(4);     // Game minor version
+        const packetVersion = msg.readUInt8(5);        // Packet version
+        const packetId = msg.readUInt8(6);             // Packet ID
+        const playerCarIndex = msg.readUInt8(28);      // Player car index (last byte of header)
         
-        // Packet ID 1 = Session Data
-        if (packetId === 1 && msg.length >= 632) {
-            const trackId = msg.readInt8(29);
+        // Use car 0 if playerCarIndex is invalid (255)
+        const carIdx = (playerCarIndex === 255) ? 0 : playerCarIndex;
+        
+        // Packet ID 1 = Session Data (753 bytes)
+        if (packetId === 1 && msg.length >= 753) {
+            // Session data starts at offset 29
+            const weather = msg.readUInt8(29);
+            const trackTemperature = msg.readInt8(30);
+            const airTemperature = msg.readInt8(31);
+            const totalLaps = msg.readUInt8(32);
+            const trackLength = msg.readUInt16LE(33);
+            const sessionType = msg.readUInt8(35);
+            const trackId = msg.readInt8(36);  // Track ID at offset 36!
+            
             const trackName = TRACK_NAMES[trackId] || `Track ${trackId}`;
-            const sessionType = msg.readUInt8(30);
             const sessionTypes = ['Unknown', 'P1', 'P2', 'P3', 'Short P', 'Q1', 'Q2', 'Q3', 'Short Q', 'OSQ', 'Race', 'Race 2', 'Race 3', 'Time Trial'];
             const sessionName = sessionTypes[sessionType] || 'Unknown';
             
-            console.log(`\n📍 SESSION | Track: ${trackName} | Type: ${sessionName} | Format: ${packetFormat} | Player: ${playerCarIndex}`);
+            console.log(`\n📍 SESSION | Track: ${trackName} | Type: ${sessionName} | Laps: ${totalLaps} | Temp: ${trackTemperature}°C`);
         }
         
-        // Packet ID 6 = Car Telemetry
-        if (packetId === 6) {
-            const baseOffset = 30;
-            const carDataSize = 66;
-            const offset = baseOffset + (playerCarIndex * carDataSize);
+        // Packet ID 6 = Car Telemetry (1352 bytes)
+        if (packetId === 6 && msg.length === 1352) {
+            const carDataSize = 66; // CarTelemetryData size from spec
+            const offset = 29 + (carIdx * carDataSize);
             
-            if (msg.length >= offset + carDataSize) {
+            if (msg.length >= offset + 19) {
+                // CarTelemetryData structure (official spec)
                 const speed = msg.readUInt16LE(offset + 0);
-                const throttle = Math.round(msg.readFloatLE(offset + 2) * 100);
-                const steering = msg.readFloatLE(offset + 6).toFixed(2);
-                const brake = Math.round(msg.readFloatLE(offset + 10) * 100);
+                const throttle = msg.readFloatLE(offset + 2);
+                const steer = msg.readFloatLE(offset + 6);
+                const brake = msg.readFloatLE(offset + 10);
+                const clutch = msg.readUInt8(offset + 14);
                 const gear = msg.readInt8(offset + 15);
                 const rpm = msg.readUInt16LE(offset + 16);
                 const drs = msg.readUInt8(offset + 18);
                 
-                console.log(`🚗 TELEMETRY | Speed: ${speed} km/h | Throttle: ${throttle}% | Brake: ${brake}% | Steering: ${steering} | Gear: ${gear} | RPM: ${rpm} | DRS: ${drs}`);
+                console.log(`🚗 TELEMETRY | Speed: ${speed} km/h | Throttle: ${(throttle * 100).toFixed(0)}% | Brake: ${(brake * 100).toFixed(0)}% | Steering: ${steer.toFixed(2)} | Gear: ${gear} | RPM: ${rpm} | DRS: ${drs}`);
             }
         }
         
-        // Packet ID 2 = Lap Data
-        if (packetId === 2) {
-            const baseOffset = 30;
-            const lapDataSize = 56;
-            const offset = baseOffset + (playerCarIndex * lapDataSize);
+        // Packet ID 2 = Lap Data (1285 bytes)
+        if (packetId === 2 && msg.length === 1285) {
+            const lapDataSize = 58; // LapData size from spec
+            const offset = 29 + (carIdx * lapDataSize);
             
-            if (msg.length >= offset + lapDataSize) {
+            if (msg.length >= offset + 30) {
+                // LapData structure (official spec)
                 const lastLapTime = msg.readUInt32LE(offset + 0);
                 const currentLapTime = msg.readUInt32LE(offset + 4);
-                const sector1Time = msg.readUInt16LE(offset + 8);
-                const sector2Time = msg.readUInt16LE(offset + 12);
-                const lapNumber = msg.readUInt8(offset + 22);
+                const sector1MS = msg.readUInt16LE(offset + 8);
+                const sector1Min = msg.readUInt8(offset + 10);
+                const sector2MS = msg.readUInt16LE(offset + 11);
+                const sector2Min = msg.readUInt8(offset + 13);
+                const lapDistance = msg.readFloatLE(offset + 22);
+                const currentLapNum = msg.readUInt8(offset + 30);
                 
-                console.log(`⏱️  LAP DATA | Lap: ${lapNumber} | Current: ${formatLapTime(currentLapTime)} | Last: ${formatLapTime(lastLapTime)} | S1: ${formatLapTime(sector1Time)} | S2: ${formatLapTime(sector2Time)}`);
+                const sector1Total = (sector1Min * 60000) + sector1MS;
+                const sector2Total = (sector2Min * 60000) + sector2MS;
+                
+                console.log(`⏱️  LAP DATA | Lap: ${currentLapNum} | Current: ${formatLapTime(currentLapTime)} | Last: ${formatLapTime(lastLapTime)} | S1: ${formatLapTime(sector1Total)} | S2: ${formatLapTime(sector2Total)} | Dist: ${lapDistance.toFixed(0)}m`);
             }
         }
         
-        // Packet ID 0 = Motion Data
-        if (packetId === 0) {
-            const baseOffset = 30;
-            const motionDataSize = 60;
-            const offset = baseOffset + (playerCarIndex * motionDataSize);
+        // Packet ID 0 = Motion (1349 bytes)
+        if (packetId === 0 && msg.length === 1349) {
+            const carMotionSize = 60; // CarMotionData size from spec
+            const offset = 29 + (carIdx * carMotionSize);
             
             if (msg.length >= offset + 24) {
-                const posX = msg.readFloatLE(offset + 0).toFixed(1);
-                const posY = msg.readFloatLE(offset + 4).toFixed(1);
-                const posZ = msg.readFloatLE(offset + 8).toFixed(1);
-                const velX = msg.readFloatLE(offset + 12).toFixed(1);
-                const velY = msg.readFloatLE(offset + 16).toFixed(1);
-                const velZ = msg.readFloatLE(offset + 20).toFixed(1);
+                const posX = msg.readFloatLE(offset + 0);
+                const posY = msg.readFloatLE(offset + 4);
+                const posZ = msg.readFloatLE(offset + 8);
+                const velX = msg.readFloatLE(offset + 12);
+                const velY = msg.readFloatLE(offset + 16);
+                const velZ = msg.readFloatLE(offset + 20);
                 
-                console.log(`📐 MOTION | Pos: (${posX}, ${posY}, ${posZ}) | Vel: (${velX}, ${velY}, ${velZ})`);
+                console.log(`📐 MOTION | Pos: (${posX.toFixed(1)}, ${posY.toFixed(1)}, ${posZ.toFixed(1)}) | Vel: (${velX.toFixed(1)}, ${velY.toFixed(1)}, ${velZ.toFixed(1)})`);
             }
         }
         
@@ -140,3 +158,4 @@ process.on('SIGINT', () => {
     client.close();
     process.exit(0);
 });
+

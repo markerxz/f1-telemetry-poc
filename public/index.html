@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 25 Telemetry - Live Dashboard</title>
+    <title>F1 25 Live Telemetry - Singapore GP</title>
     <style>
         * {
             margin: 0;
@@ -12,77 +12,35 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
             color: #ffffff;
-            padding: 20px;
-            min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         header {
             text-align: center;
             margin-bottom: 30px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: linear-gradient(135deg, #e10600 0%, #ff4444 100%);
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         h1 {
             font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #e10600, #ff4444);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .status {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
+        .track-info {
+            font-size: 1.2em;
             margin-top: 10px;
-        }
-
-        .status.connected {
-            background: rgba(0, 255, 0, 0.2);
-            color: #00ff00;
-            border: 1px solid #00ff00;
-        }
-
-        .status.disconnected {
-            background: rgba(255, 0, 0, 0.2);
-            color: #ff4444;
-            border: 1px solid #ff4444;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .status.connected .status-dot {
-            background: #00ff00;
-        }
-
-        .status.disconnected .status-dot {
-            background: #ff4444;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+            opacity: 0.9;
         }
 
         .grid {
@@ -93,164 +51,276 @@
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-radius: 16px;
+            padding: 25px;
+            border: 2px solid #333;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
         .card-title {
-            font-size: 0.85em;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 0.9em;
             color: #888;
-            margin-bottom: 12px;
-            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
         }
 
-        .card-value {
-            font-size: 3em;
-            font-weight: 700;
-            line-height: 1;
-            background: linear-gradient(45deg, #ffffff, #cccccc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* Steering Wheel */
+        .steering-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
         }
 
-        .card-unit {
-            font-size: 0.4em;
-            color: #666;
-            margin-left: 8px;
+        .steering-wheel {
+            width: 100%;
+            height: 100%;
+            border: 8px solid #e10600;
+            border-radius: 50%;
+            position: relative;
+            transition: transform 0.05s;
+            background: radial-gradient(circle, #333 0%, #1a1a1a 100%);
         }
 
-        .session-info {
-            grid-column: 1 / -1;
+        .steering-center {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #e10600;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2em;
         }
 
-        .info-item {
+        .steering-grip {
+            position: absolute;
+            width: 20px;
+            height: 80px;
+            background: #666;
+            border-radius: 10px;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .steering-value {
             text-align: center;
+            margin-top: 15px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00ff00;
         }
 
-        .info-label {
-            font-size: 0.85em;
+        /* Pedals */
+        .pedals-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .pedal {
+            text-align: center;
+            width: 80px;
+        }
+
+        .pedal-label {
+            font-size: 0.8em;
             color: #888;
             margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .info-value {
-            font-size: 1.5em;
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .telemetry-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-        }
-
-        .telemetry-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
+        .pedal-bar {
+            width: 100%;
+            height: 150px;
+            background: #1a1a1a;
+            border: 2px solid #333;
             border-radius: 8px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .telemetry-label {
-            font-size: 0.9em;
-            color: #888;
+        .pedal-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            transition: height 0.05s;
+            border-radius: 6px 6px 0 0;
         }
 
-        .telemetry-value {
+        .throttle-fill {
+            background: linear-gradient(to top, #00ff00 0%, #00aa00 100%);
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        .brake-fill {
+            background: linear-gradient(to top, #ff0000 0%, #aa0000 100%);
+            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+        }
+
+        .pedal-value {
+            margin-top: 8px;
             font-size: 1.2em;
-            font-weight: 600;
-            color: #ffffff;
+            font-weight: bold;
         }
 
+        /* Speed & RPM */
+        .speed-display {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .speed-value {
+            font-size: 5em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff00, #00aa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .speed-unit {
+            font-size: 1.5em;
+            color: #666;
+        }
+
+        .gear-display {
+            font-size: 4em;
+            font-weight: bold;
+            color: #00ff00;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        .rpm-bar {
+            width: 100%;
+            height: 40px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #333;
+            position: relative;
+        }
+
+        .rpm-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+            transition: width 0.05s;
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        .rpm-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
+        }
+
+        /* Lap Times */
         .lap-time {
             font-family: 'Courier New', monospace;
-            font-size: 3.5em !important;
+            font-size: 3em;
+            font-weight: bold;
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+            padding: 20px;
         }
 
-        .sector-times {
+        .lap-label {
+            font-size: 0.4em;
+            color: #888;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .sectors {
             display: flex;
-            justify-content: space-around;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .sector {
+            flex: 1;
             text-align: center;
+            padding: 15px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 2px solid #333;
         }
 
         .sector-label {
-            font-size: 0.75em;
-            color: #888;
-            margin-bottom: 4px;
-        }
-
-        .sector-value {
-            font-size: 1.1em;
-            font-weight: 600;
-            font-family: 'Courier New', monospace;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #e10600, #ff4444);
-            transition: width 0.3s ease;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px;
-            color: #666;
-            font-size: 0.9em;
-        }
-
-        .last-update {
             font-size: 0.8em;
-            color: #666;
-            margin-top: 8px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .sector-time {
+            font-size: 1.3em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+
+        /* Singapore GP Record */
+        .singapore-record {
+            background: linear-gradient(135deg, #e10600 0%, #aa0000 100%);
+            border: 2px solid #ff4444;
+        }
+
+        .record-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #00ff00;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
 
         @media (max-width: 768px) {
             .grid {
                 grid-template-columns: 1fr;
             }
-            
             h1 {
                 font-size: 1.8em;
-            }
-            
-            .card-value {
-                font-size: 2.5em;
             }
         }
     </style>
@@ -258,244 +328,204 @@
 <body>
     <div class="container">
         <header>
-            <h1>🏎️ F1 25 Telemetry Dashboard</h1>
-            <div id="status" class="status disconnected">
-                <span class="status-dot"></span>
-                <span id="statusText">Waiting for data...</span>
+            <h1>🏎️ F1 25 LIVE TELEMETRY</h1>
+            <div class="track-info">
+                <span id="trackName">Unknown Track</span> | 
+                Lap <span id="lapNumber">0</span> |
+                <span class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span id="status">LIVE</span>
+                </span>
             </div>
         </header>
 
-        <div class="card session-info">
-            <div class="info-item">
-                <div class="info-label">Track</div>
-                <div class="info-value" id="trackName">Unknown</div>
+        <div class="grid">
+            <!-- Speed & Gear -->
+            <div class="card">
+                <div class="card-title">Speed & Gear</div>
+                <div class="speed-display">
+                    <div class="speed-value" id="speed">0</div>
+                    <div class="speed-unit">km/h</div>
+                </div>
+                <div class="gear-display" id="gear">N</div>
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">ENGINE RPM</div>
+                    <div class="rpm-bar">
+                        <div class="rpm-fill" id="rpmFill"></div>
+                        <div class="rpm-text" id="rpmText">0</div>
+                    </div>
+                </div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Session</div>
-                <div class="info-value" id="sessionType">Unknown</div>
+
+            <!-- Steering Wheel -->
+            <div class="card">
+                <div class="card-title">Steering Input</div>
+                <div class="steering-container">
+                    <div class="steering-wheel" id="steeringWheel">
+                        <div class="steering-grip"></div>
+                        <div class="steering-center">F1</div>
+                    </div>
+                </div>
+                <div class="steering-value" id="steeringValue">0.00°</div>
             </div>
-            <div class="info-item">
-                <div class="info-label">Driver</div>
-                <div class="info-value" id="driverName">Unknown</div>
-            </div>
-            <div class="info-item">
-                <div class="info-label">Lap</div>
-                <div class="info-value" id="lapNumber">0</div>
+
+            <!-- Pedals -->
+            <div class="card">
+                <div class="card-title">Pedal Inputs</div>
+                <div class="pedals-container">
+                    <div class="pedal">
+                        <div class="pedal-label">Throttle</div>
+                        <div class="pedal-bar">
+                            <div class="pedal-fill throttle-fill" id="throttleFill"></div>
+                        </div>
+                        <div class="pedal-value"><span id="throttleValue">0</span>%</div>
+                    </div>
+                    <div class="pedal">
+                        <div class="pedal-label">Brake</div>
+                        <div class="pedal-bar">
+                            <div class="pedal-fill brake-fill" id="brakeFill"></div>
+                        </div>
+                        <div class="pedal-value"><span id="brakeValue">0</span>%</div>
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- Lap Times -->
         <div class="grid">
             <div class="card">
-                <div class="card-title">Current Lap Time</div>
-                <div class="card-value lap-time" id="currentLapTime">0:00.000</div>
+                <div class="card-title">Current Lap</div>
+                <div class="lap-time" id="currentLap">
+                    <span class="lap-label">CURRENT LAP</span>
+                    0:00.000
+                </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Last Lap Time</div>
-                <div class="card-value lap-time" id="lastLapTime">0:00.000</div>
-                <div class="sector-times">
+                <div class="card-title">Last Lap</div>
+                <div class="lap-time" id="lastLap">
+                    <span class="lap-label">LAST LAP</span>
+                    0:00.000
+                </div>
+                <div class="sectors">
                     <div class="sector">
-                        <div class="sector-label">S1</div>
-                        <div class="sector-value" id="sector1">--</div>
+                        <div class="sector-label">SECTOR 1</div>
+                        <div class="sector-time" id="sector1">--:--.---</div>
                     </div>
                     <div class="sector">
-                        <div class="sector-label">S2</div>
-                        <div class="sector-value" id="sector2">--</div>
+                        <div class="sector-label">SECTOR 2</div>
+                        <div class="sector-time" id="sector2">--:--.---</div>
                     </div>
                     <div class="sector">
-                        <div class="sector-label">S3</div>
-                        <div class="sector-value" id="sector3">--</div>
+                        <div class="sector-label">SECTOR 3</div>
+                        <div class="sector-time" id="sector3">--:--.---</div>
                     </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title">Speed</div>
-                <div class="card-value">
-                    <span id="speed">0</span>
-                    <span class="card-unit">km/h</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Gear</div>
-                <div class="card-value" id="gear">N</div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Engine RPM</div>
-                <div class="card-value">
-                    <span id="rpm">0</span>
-                    <span class="card-unit">rpm</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-title">Car Telemetry</div>
-                <div class="telemetry-grid">
-                    <div class="telemetry-item">
-                        <span class="telemetry-label">Throttle</span>
-                        <span class="telemetry-value"><span id="throttle">0</span>%</span>
-                    </div>
-                    <div class="telemetry-item">
-                        <span class="telemetry-label">Brake</span>
-                        <span class="telemetry-value"><span id="brake">0</span>%</span>
-                    </div>
-                    <div class="telemetry-item">
-                        <span class="telemetry-label">DRS</span>
-                        <span class="telemetry-value" id="drs">OFF</span>
-                    </div>
-                    <div class="telemetry-item">
-                        <span class="telemetry-label">Steering</span>
-                        <span class="telemetry-value" id="steering">0.00</span>
-                    </div>
-                </div>
-                <div class="progress-bar" title="Throttle">
-                    <div class="progress-fill" id="throttleBar" style="width: 0%"></div>
+                <div class="card-title">Best Lap</div>
+                <div class="lap-time" id="bestLap">
+                    <span class="lap-label">PERSONAL BEST</span>
+                    0:00.000
                 </div>
             </div>
         </div>
 
-        <footer>
-            <div>F1 25 Telemetry Dashboard - Proof of Concept</div>
-            <div class="last-update">Last update: <span id="lastUpdate">Never</span></div>
-        </footer>
+        <!-- Singapore GP Record -->
+        <div class="card singapore-record">
+            <div class="record-title">🏆 SINGAPORE GP - SESSION RECORD 🏆</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8em; opacity: 0.8;">BEST LAP</div>
+                    <div style="font-size: 2em; font-weight: bold; font-family: 'Courier New';" id="sgBestLap">--:--.---</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 1</div>
+                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector1">--:--.---</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 2</div>
+                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector2">--:--.---</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 3</div>
+                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector3">--:--.---</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; font-size: 0.8em; opacity: 0.7;" id="sgTimestamp">--</div>
+        </div>
     </div>
 
     <script>
         // WebSocket connection
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}`;
-        let ws;
-        let reconnectInterval;
-
-        // DOM elements
-        const elements = {
-            status: document.getElementById('status'),
-            statusText: document.getElementById('statusText'),
-            trackName: document.getElementById('trackName'),
-            sessionType: document.getElementById('sessionType'),
-            driverName: document.getElementById('driverName'),
-            lapNumber: document.getElementById('lapNumber'),
-            currentLapTime: document.getElementById('currentLapTime'),
-            lastLapTime: document.getElementById('lastLapTime'),
-            sector1: document.getElementById('sector1'),
-            sector2: document.getElementById('sector2'),
-            sector3: document.getElementById('sector3'),
-            speed: document.getElementById('speed'),
-            gear: document.getElementById('gear'),
-            rpm: document.getElementById('rpm'),
-            throttle: document.getElementById('throttle'),
-            brake: document.getElementById('brake'),
-            drs: document.getElementById('drs'),
-            steering: document.getElementById('steering'),
-            throttleBar: document.getElementById('throttleBar'),
-            lastUpdate: document.getElementById('lastUpdate')
+        const ws = new WebSocket('ws://' + window.location.host);
+        
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            updateDashboard(data);
         };
 
-        function connect() {
-            console.log('Connecting to WebSocket:', wsUrl);
-            ws = new WebSocket(wsUrl);
-
-            ws.onopen = () => {
-                console.log('WebSocket connected');
-                elements.statusText.textContent = 'Connected - Waiting for telemetry...';
-                clearInterval(reconnectInterval);
-            };
-
-            ws.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    updateDashboard(data);
-                } catch (error) {
-                    console.error('Error parsing message:', error);
-                }
-            };
-
-            ws.onerror = (error) => {
-                console.error('WebSocket error:', error);
-            };
-
-            ws.onclose = () => {
-                console.log('WebSocket disconnected');
-                elements.status.className = 'status disconnected';
-                elements.statusText.textContent = 'Disconnected - Reconnecting...';
-                
-                // Attempt to reconnect every 3 seconds
-                reconnectInterval = setInterval(() => {
-                    if (ws.readyState === WebSocket.CLOSED) {
-                        connect();
-                    }
-                }, 3000);
-            };
-        }
-
         function updateDashboard(data) {
-            // Update connection status
-            if (data.connected) {
-                elements.status.className = 'status connected';
-                elements.statusText.textContent = 'Connected - Receiving telemetry';
-            } else {
-                elements.status.className = 'status disconnected';
-                elements.statusText.textContent = 'Connected - No telemetry data';
-            }
-
-            // Update session info
-            elements.trackName.textContent = data.trackName || 'Unknown';
-            elements.sessionType.textContent = data.sessionType || 'Unknown';
-            elements.driverName.textContent = data.driverName || 'Unknown';
-            elements.lapNumber.textContent = data.lapNumber || '0';
-
-            // Update lap times
-            elements.currentLapTime.textContent = data.currentLapTime || '0:00.000';
-            elements.lastLapTime.textContent = data.lastLapTime || '0:00.000';
-            elements.sector1.textContent = data.sector1Time || '--';
-            elements.sector2.textContent = data.sector2Time || '--';
+            // Track info
+            document.getElementById('trackName').textContent = data.trackName || 'Unknown';
+            document.getElementById('lapNumber').textContent = data.lapNumber || 0;
             
-            // Calculate sector 3 (total - s1 - s2)
-            if (data.sector1Time && data.sector2Time && data.lastLapTime) {
-                elements.sector3.textContent = data.sector3Time || '--';
-            }
-
-            // Update telemetry
-            elements.speed.textContent = data.speed || '0';
+            // Speed & Gear
+            document.getElementById('speed').textContent = data.speed || 0;
             
-            // Format gear display
             const gear = data.gear;
-            if (gear === -1) {
-                elements.gear.textContent = 'R';
-            } else if (gear === 0) {
-                elements.gear.textContent = 'N';
-            } else {
-                elements.gear.textContent = gear;
-            }
+            let gearText = 'N';
+            if (gear === -1) gearText = 'R';
+            else if (gear > 0) gearText = gear;
+            document.getElementById('gear').textContent = gearText;
             
-            elements.rpm.textContent = (data.rpm || 0).toLocaleString();
-            elements.throttle.textContent = data.throttle || '0';
-            elements.brake.textContent = data.brake || '0';
-            elements.drs.textContent = data.drs ? 'ON' : 'OFF';
-            elements.steering.textContent = (data.steering || 0).toFixed(2);
+            // RPM
+            const rpmPercent = (data.rpm / 15000) * 100;
+            document.getElementById('rpmFill').style.width = rpmPercent + '%';
+            document.getElementById('rpmText').textContent = (data.rpm || 0).toLocaleString();
             
-            // Update throttle bar
-            elements.throttleBar.style.width = `${data.throttle || 0}%`;
-
-            // Update last update time
-            const now = new Date();
-            elements.lastUpdate.textContent = now.toLocaleTimeString();
+            // Steering
+            const steeringDegrees = (data.steering || 0) * 45; // Convert to degrees
+            document.getElementById('steeringWheel').style.transform = `rotate(${steeringDegrees}deg)`;
+            document.getElementById('steeringValue').textContent = steeringDegrees.toFixed(1) + '°';
+            
+            // Pedals
+            document.getElementById('throttleFill').style.height = (data.throttle || 0) + '%';
+            document.getElementById('throttleValue').textContent = data.throttle || 0;
+            
+            document.getElementById('brakeFill').style.height = (data.brake || 0) + '%';
+            document.getElementById('brakeValue').textContent = data.brake || 0;
+            
+            // Lap times
+            document.getElementById('currentLap').innerHTML = `<span class="lap-label">CURRENT LAP</span>${data.currentLapTimeStr || '0:00.000'}`;
+            document.getElementById('lastLap').innerHTML = `<span class="lap-label">LAST LAP</span>${data.lastLapTimeStr || '0:00.000'}`;
+            document.getElementById('bestLap').innerHTML = `<span class="lap-label">PERSONAL BEST</span>${data.bestLapTimeStr || '0:00.000'}`;
+            
+            // Sectors
+            document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
+            document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
+            document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
         }
 
-        // Initialize connection
-        connect();
+        // Fetch Singapore GP record
+        function updateSingaporeRecord() {
+            fetch('/api/singapore-best')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('sgBestLap').textContent = data.lapTime || '--:--.---';
+                    document.getElementById('sgSector1').textContent = data.sector1 || '--:--.---';
+                    document.getElementById('sgSector2').textContent = data.sector2 || '--:--.---';
+                    document.getElementById('sgSector3').textContent = data.sector3 || '--:--.---';
+                    if (data.timestamp) {
+                        document.getElementById('sgTimestamp').textContent = 'Set: ' + new Date(data.timestamp).toLocaleString();
+                    }
+                });
+        }
 
-        // Fallback: Poll REST API if WebSocket fails
-        setInterval(() => {
-            if (!ws || ws.readyState !== WebSocket.OPEN) {
-                fetch('/api/data')
-                    .then(response => response.json())
-                    .then(data => updateDashboard(data))
-                    .catch(error => console.error('Error fetching data:', error));
-            }
-        }, 2000);
+        // Update Singapore record every 5 seconds
+        setInterval(updateSingaporeRecord, 5000);
+        updateSingaporeRecord();
     </script>
 </body>
 </html>

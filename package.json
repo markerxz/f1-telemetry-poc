@@ -1,11 +1,12 @@
 {
-  "name": "f1-telemetry-poc",
+  "name": "f1-telemetry-dashboard",
   "version": "1.0.0",
-  "description": "F1 25 Telemetry Server - Minimal POC for Oracle Cloud",
-  "main": "server-simple.js",
+  "description": "F1 25 Real-Time Telemetry Dashboard - Oracle Cloud",
+  "main": "server.js",
   "scripts": {
-    "start": "node server-simple.js",
-    "dev": "nodemon server-simple.js"
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "inspect": "node cli-inspector.js"
   },
   "keywords": [
     "f1",
