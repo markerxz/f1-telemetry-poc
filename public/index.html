@@ -85,8 +85,8 @@
         .main-container {
             display: grid;
             grid-template-columns: 1fr 1.4fr 1fr;
-            height: calc(100vh - 200px);
-            max-height: calc(100vh - 200px);
+            height: calc(100vh - 180px);
+            max-height: calc(100vh - 180px);
             gap: 20px;
             padding: 20px;
             overflow: hidden !important;
@@ -513,7 +513,7 @@
         }
 
         .lap-history {
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
             overflow-x: hidden;
         }
@@ -521,12 +521,12 @@
         .lap-history-item {
             display: flex;
             justify-content: space-between;
-            padding: 16px;
-            margin-bottom: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
             background: #1a1a1a;
-            border-radius: 10px;
+            border-radius: 8px;
             font-family: 'Courier New', monospace;
-            font-size: 2em;
+            font-size: 1.4em;
             border: 2px solid #333;
         }
 
@@ -615,11 +615,11 @@
 
         /* Bottom Bar */
         .bottom-bar {
-            height: 100px;
+            height: 80px;
             background: #0f0f0f;
             border-top: 3px solid #a4d233;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             padding: 0 40px;
         }
@@ -631,7 +631,7 @@
         }
 
         .ais-logo {
-            height: 80px;
+            height: 70px;
             filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.5));
         }
 
@@ -678,6 +678,10 @@
 <body>
     <!-- Top Bar -->
     <div class="top-bar">
+        <div class="branding">
+            <img src="AIS_Square_White.png" alt="AIS Cloud" class="ais-logo">
+            <div class="branding-text">Powered by AIS Cloud</div>
+        </div>
         <div class="track-info">
             <div class="track-name" id="trackName">SINGAPORE GRAND PRIX - TIME TRIAL</div>
             <div class="session-info">
@@ -854,10 +858,6 @@
 
     <!-- Bottom Bar -->
     <div class="bottom-bar">
-        <div class="branding">
-            <img src="AIS_Square_White.png" alt="AIS Cloud" class="ais-logo">
-            <div class="branding-text">Powered by AIS Cloud</div>
-        </div>
         <div class="telemetry-stats">
             <div><span class="stat-label">DATA RATE:</span> <span class="stat-value" id="dataRate">60 pkt/s</span></div>
             <div><span class="stat-label">LATENCY:</span> <span class="stat-value" id="latency">12ms</span></div>
@@ -911,7 +911,14 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { display: false, min: 0, max: 400 },
+                    y: { 
+                        display: true, 
+                        min: 0, 
+                        max: 400,
+                        grid: { color: '#222' },
+                        ticks: { color: '#666', font: { size: 10 } },
+                        title: { display: true, text: 'km/h', color: '#a4d233', font: { size: 12 } }
+                    },
                     x: { display: false }
                 }
             }
@@ -939,7 +946,14 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { display: false, min: 0, max: 100 },
+                    y: { 
+                        display: true, 
+                        min: 0, 
+                        max: 100,
+                        grid: { color: '#222' },
+                        ticks: { color: '#666', font: { size: 10 } },
+                        title: { display: true, text: '%', color: '#00ff00', font: { size: 12 } }
+                    },
                     x: { display: false }
                 }
             }
@@ -967,43 +981,57 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { display: false, min: 0, max: 100 },
+                    y: { 
+                        display: true, 
+                        min: 0, 
+                        max: 100,
+                        grid: { color: '#222' },
+                        ticks: { color: '#666', font: { size: 10 } },
+                        title: { display: true, text: '%', color: '#ff0000', font: { size: 12 } }
+                    },
                     x: { display: false }
                 }
             }
         });
 
-        // G-Force Chart
+        // G-Force Chart (X-Y scatter plot centered at 0,0)
         const gforceChart = new Chart(document.getElementById('gforceChart'), {
-            type: 'line',
+            type: 'scatter',
             data: {
-                labels: timeLabels,
                 datasets: [{
-                    label: 'Lateral',
-                    data: gforceLateralData,
+                    label: 'G-Force',
+                    data: [],
                     borderColor: '#a4d233',
-                    backgroundColor: 'rgba(164, 210, 51, 0.2)',
-                    borderWidth: 4,
-                    tension: 0.4,
-                    pointRadius: 0
-                }, {
-                    label: 'Longitudinal',
-                    data: gforceLongitudinalData,
-                    borderColor: '#8bc234',
-                    backgroundColor: 'rgba(139, 194, 52, 0.2)',
-                    borderWidth: 4,
-                    tension: 0.4,
-                    pointRadius: 0
+                    backgroundColor: 'rgba(164, 210, 51, 0.6)',
+                    pointRadius: 3,
+                    showLine: false
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: false,
-                plugins: { legend: { display: false } },
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
                 scales: {
-                    y: { display: false, min: -5, max: 5 },
-                    x: { display: false }
+                    x: { 
+                        display: true,
+                        min: -5,
+                        max: 5,
+                        grid: { color: '#333' },
+                        ticks: { color: '#666', font: { size: 10 } },
+                        title: { display: true, text: 'Lateral G', color: '#a4d233', font: { size: 12 } }
+                    },
+                    y: { 
+                        display: true,
+                        min: -5,
+                        max: 5,
+                        grid: { color: '#333' },
+                        ticks: { color: '#666', font: { size: 10 } },
+                        title: { display: true, text: 'Long. G', color: '#a4d233', font: { size: 12 } }
+                    }
                 }
             }
         });
@@ -1011,18 +1039,20 @@
         function updateTrackPosition(lapDistance) {
             if (!trackLength || lapDistance === undefined) return;
             
-            const progress = lapDistance / trackLength;
+            const progress = (lapDistance / trackLength) % 1; // Ensure 0-1 range
             const carPos = document.getElementById('carPosition');
-            const trackMap = document.getElementById('trackMap');
-            const mapRect = trackMap.getBoundingClientRect();
+            const container = carPos.parentElement;
             
-            // Simplified position calculation (circular approximation)
-            // In reality, you'd map this to the actual SVG path coordinates
-            const centerX = mapRect.width / 2;
-            const centerY = mapRect.height / 2;
-            const radius = Math.min(mapRect.width, mapRect.height) * 0.35;
+            // Use container dimensions directly (not getBoundingClientRect which can change)
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
             
-            const angle = progress * 2 * Math.PI - Math.PI / 2; // Start at top
+            // Circular approximation - start at top, go clockwise
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) * 0.35;
+            
+            const angle = progress * 2 * Math.PI - Math.PI / 2; // Start at top (12 o'clock)
             const x = centerX + radius * Math.cos(angle);
             const y = centerY + radius * Math.sin(angle);
             
@@ -1203,8 +1233,15 @@
             speedData.push(data.speed || 0);
             throttleData.push(data.throttle || 0);
             brakeData.push(data.brake || 0);
-            gforceLateralData.push(data.gForceLateral || 0);
-            gforceLongitudinalData.push(data.gForceLongitudinal || 0);
+            
+            // G-Force scatter plot (X = Lateral, Y = Longitudinal)
+            gforceChart.data.datasets[0].data.push({
+                x: data.gForceLateral || 0,
+                y: data.gForceLongitudinal || 0
+            });
+            if (gforceChart.data.datasets[0].data.length > maxDataPoints) {
+                gforceChart.data.datasets[0].data.shift();
+            }
             
             speedChart.update('none');
             throttleChart.update('none');
