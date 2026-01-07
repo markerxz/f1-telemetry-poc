@@ -106,7 +106,9 @@
             border-radius: 15px;
             padding: 25px;
             flex: 1;
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.1);
+            max-height: 100%;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(164, 210, 51, 0.1);
         }
 
         .chart-title {
@@ -122,6 +124,8 @@
         .chart-container {
             position: relative;
             height: calc(100% - 60px);
+            max-height: calc(100% - 60px);
+            overflow: hidden;
         }
 
         /* Center Column - Main Display */
@@ -341,19 +345,19 @@
         .steering-wheel {
             width: 180px;
             height: 180px;
-            border: 6px solid #00d9ff;
+            border: 6px solid #a4d233;
             border-radius: 50%;
             position: relative;
             transition: transform 0.05s;
             background: radial-gradient(circle, #222 0%, #111 100%);
-            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
+            box-shadow: 0 0 30px rgba(164, 210, 51, 0.4);
         }
 
         .steering-center {
             position: absolute;
             width: 60px;
             height: 60px;
-            background: #00d9ff;
+            background: #a4d233;
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -380,7 +384,7 @@
         .steering-value {
             font-size: 2.2em;
             font-weight: bold;
-            color: #00d9ff;
+            color: #a4d233;
             font-family: 'Courier New', monospace;
         }
 
@@ -797,7 +801,7 @@
                 </div>
                 <div style="margin-top: 20px; text-align: center;">
                     <div style="color: #666; font-size: 1.4em; margin-bottom: 8px;">BEST LAP</div>
-                    <div style="font-size: 3em; font-weight: bold; color: #ff0080; font-family: 'Courier New', monospace;" id="bestLap">--:--.---</div>
+                    <div style="font-size: 3em; font-weight: bold; color: #c8e66f; font-family: 'Courier New', monospace; text-shadow: 0 0 20px rgba(200, 230, 111, 0.6);" id="bestLap">--:--.---</div>
                 </div>
             </div>
 

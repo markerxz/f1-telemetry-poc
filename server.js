@@ -246,8 +246,28 @@ const server = http.createServer((req, res) => {
             timestamp: singaporeBestLap.timestamp
         }));
     } else {
-        res.writeHead(404);
-        res.end('Not Found');
+        // Serve static files from public folder
+        const filePath = path.join(__dirname, 'public', req.url);
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                res.writeHead(404);
+                res.end('Not Found');
+                return;
+            }
+            
+            // Set correct content type
+            const ext = path.extname(filePath);
+            const contentTypes = {
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.svg': 'image/svg+xml',
+                '.css': 'text/css',
+                '.js': 'application/javascript'
+            };
+            
+            res.writeHead(200, { 'Content-Type': contentTypes[ext] || 'application/octet-stream' });
+            res.end(data);
+        });
     }
 });
 
