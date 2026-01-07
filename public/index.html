@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>F1 25 Live Telemetry - Singapore GP</title>
+    <title>F1 25 Live Telemetry - Advanced Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -19,67 +20,138 @@
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1920px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: linear-gradient(135deg, #e10600 0%, #ff4444 100%);
             border-radius: 12px;
         }
 
         h1 {
-            font-size: 2.5em;
+            font-size: 2em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .track-info {
-            font-size: 1.2em;
-            margin-top: 10px;
+            font-size: 1em;
+            margin-top: 8px;
             opacity: 0.9;
         }
 
-        .grid {
+        .main-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .secondary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
 
         .card {
             background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-            border-radius: 16px;
-            padding: 25px;
+            border-radius: 12px;
+            padding: 20px;
             border: 2px solid #333;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
 
         .card-title {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #888;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
             border-bottom: 2px solid #333;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
+        }
+
+        /* Speed Display */
+        .speed-display {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .speed-value {
+            font-size: 6em;
+            font-weight: bold;
+            background: linear-gradient(45deg, #00ff00, #00aa00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .speed-unit {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .gear-display {
+            font-size: 5em;
+            font-weight: bold;
+            color: #00ff00;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+
+        /* RPM Bar */
+        .rpm-bar {
+            width: 100%;
+            height: 35px;
+            background: #1a1a1a;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 2px solid #333;
+            position: relative;
+            margin-top: 15px;
+        }
+
+        .rpm-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+            transition: width 0.05s;
+        }
+
+        .rpm-text {
+            position: absolute;
+            width: 100%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px #000;
         }
 
         /* Steering Wheel */
         .steering-container {
             position: relative;
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
+            width: 160px;
+            height: 160px;
+            margin: 15px auto;
         }
 
         .steering-wheel {
             width: 100%;
             height: 100%;
-            border: 8px solid #e10600;
+            border: 6px solid #e10600;
             border-radius: 50%;
             position: relative;
             transition: transform 0.05s;
@@ -88,8 +160,8 @@
 
         .steering-center {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             background: #e10600;
             border-radius: 50%;
             top: 50%;
@@ -99,24 +171,24 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 1.2em;
+            font-size: 1em;
         }
 
         .steering-grip {
             position: absolute;
-            width: 20px;
-            height: 80px;
+            width: 16px;
+            height: 70px;
             background: #666;
-            border-radius: 10px;
-            top: 10px;
+            border-radius: 8px;
+            top: 8px;
             left: 50%;
             transform: translateX(-50%);
         }
 
         .steering-value {
             text-align: center;
-            margin-top: 15px;
-            font-size: 1.5em;
+            margin-top: 10px;
+            font-size: 1.3em;
             font-weight: bold;
             color: #00ff00;
         }
@@ -124,29 +196,29 @@
         /* Pedals */
         .pedals-container {
             display: flex;
-            gap: 20px;
+            gap: 15px;
             justify-content: center;
-            margin: 20px 0;
+            margin: 15px 0;
         }
 
         .pedal {
             text-align: center;
-            width: 80px;
+            width: 70px;
         }
 
         .pedal-label {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #888;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             text-transform: uppercase;
         }
 
         .pedal-bar {
             width: 100%;
-            height: 150px;
+            height: 130px;
             background: #1a1a1a;
             border: 2px solid #333;
-            border-radius: 8px;
+            border-radius: 6px;
             position: relative;
             overflow: hidden;
         }
@@ -156,108 +228,135 @@
             bottom: 0;
             width: 100%;
             transition: height 0.05s;
-            border-radius: 6px 6px 0 0;
         }
 
         .throttle-fill {
             background: linear-gradient(to top, #00ff00 0%, #00aa00 100%);
-            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+            box-shadow: 0 0 15px rgba(0,255,0,0.5);
         }
 
         .brake-fill {
             background: linear-gradient(to top, #ff0000 0%, #aa0000 100%);
-            box-shadow: 0 0 20px rgba(255,0,0,0.5);
+            box-shadow: 0 0 15px rgba(255,0,0,0.5);
         }
 
         .pedal-value {
-            margin-top: 8px;
-            font-size: 1.2em;
+            margin-top: 6px;
+            font-size: 1.1em;
             font-weight: bold;
-        }
-
-        /* Speed & RPM */
-        .speed-display {
-            text-align: center;
-            padding: 30px;
-        }
-
-        .speed-value {
-            font-size: 5em;
-            font-weight: bold;
-            background: linear-gradient(45deg, #00ff00, #00aa00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            line-height: 1;
-        }
-
-        .speed-unit {
-            font-size: 1.5em;
-            color: #666;
-        }
-
-        .gear-display {
-            font-size: 4em;
-            font-weight: bold;
-            color: #00ff00;
-            text-align: center;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(0,255,0,0.5);
-        }
-
-        .rpm-bar {
-            width: 100%;
-            height: 40px;
-            background: #1a1a1a;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 2px solid #333;
-            position: relative;
-        }
-
-        .rpm-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
-            transition: width 0.05s;
-            box-shadow: 0 0 20px rgba(0,255,0,0.5);
-        }
-
-        .rpm-text {
-            position: absolute;
-            width: 100%;
-            text-align: center;
-            line-height: 40px;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 1px 1px 2px #000;
         }
 
         /* Lap Times */
         .lap-time {
             font-family: 'Courier New', monospace;
-            font-size: 3em;
+            font-size: 2.2em;
             font-weight: bold;
             text-align: center;
             color: #00ff00;
-            text-shadow: 0 0 20px rgba(0,255,0,0.5);
-            padding: 20px;
+            text-shadow: 0 0 15px rgba(0,255,0,0.5);
+            padding: 15px;
         }
 
         .lap-label {
             font-size: 0.4em;
             color: #888;
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .sectors {
             display: flex;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 15px;
         }
 
         .sector {
             flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            border: 2px solid #333;
+        }
+
+        .sector-label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .sector-time {
+            font-size: 1.1em;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+        }
+
+        /* G-Force Display */
+        .gforce-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gforce-item {
+            text-align: center;
+            padding: 12px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            border: 2px solid #333;
+        }
+
+        .gforce-label {
+            font-size: 0.75em;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .gforce-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00ffff;
+        }
+
+        /* Temperature Display */
+        .temp-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .temp-item {
+            text-align: center;
+            padding: 10px;
+            background: #1a1a1a;
+            border-radius: 6px;
+            border: 2px solid #333;
+        }
+
+        .temp-label {
+            font-size: 0.7em;
+            color: #888;
+            margin-bottom: 4px;
+        }
+
+        .temp-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff9900;
+        }
+
+        /* Tyre Display */
+        .tyre-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .tyre-item {
             text-align: center;
             padding: 15px;
             background: #1a1a1a;
@@ -265,46 +364,59 @@
             border: 2px solid #333;
         }
 
-        .sector-label {
+        .tyre-label {
             font-size: 0.8em;
             color: #888;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
-        .sector-time {
-            font-size: 1.3em;
+        .tyre-temp {
+            font-size: 2em;
             font-weight: bold;
-            font-family: 'Courier New', monospace;
-            color: #00ff00;
+            color: #ff6600;
         }
 
-        /* Singapore GP Record */
-        .singapore-record {
-            background: linear-gradient(135deg, #e10600 0%, #aa0000 100%);
-            border: 2px solid #ff4444;
-        }
-
-        .record-title {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-bottom: 15px;
+        /* DRS Indicator */
+        .drs-indicator {
             text-align: center;
+            padding: 20px;
+            background: #1a1a1a;
+            border-radius: 8px;
+            border: 2px solid #333;
+            margin-top: 10px;
         }
 
+        .drs-indicator.active {
+            background: linear-gradient(135deg, #00ff00 0%, #00aa00 100%);
+            border-color: #00ff00;
+            animation: drs-pulse 1s infinite;
+        }
+
+        @keyframes drs-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .drs-text {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        /* Status Indicator */
         .status-indicator {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 0.9em;
+            font-size: 0.85em;
             background: rgba(0,255,0,0.2);
             border: 1px solid #00ff00;
         }
 
         .status-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background: #00ff00;
             border-radius: 50%;
             animation: pulse 2s infinite;
@@ -315,12 +427,24 @@
             50% { opacity: 0.3; }
         }
 
-        @media (max-width: 768px) {
-            .grid {
-                grid-template-columns: 1fr;
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+
+        @media (max-width: 1400px) {
+            .main-grid {
+                grid-template-columns: 1fr 1fr;
             }
-            h1 {
-                font-size: 1.8em;
+            .secondary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-grid, .secondary-grid, .chart-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -328,7 +452,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🏎️ F1 25 LIVE TELEMETRY</h1>
+            <h1>🏎️ F1 25 ADVANCED TELEMETRY DASHBOARD</h1>
             <div class="track-info">
                 <span id="trackName">Unknown Track</span> | 
                 Lap <span id="lapNumber">0</span> |
@@ -339,7 +463,8 @@
             </div>
         </header>
 
-        <div class="grid">
+        <!-- Main Grid: Speed, Steering, Pedals -->
+        <div class="main-grid">
             <!-- Speed & Gear -->
             <div class="card">
                 <div class="card-title">Speed & Gear</div>
@@ -348,12 +473,9 @@
                     <div class="speed-unit">km/h</div>
                 </div>
                 <div class="gear-display" id="gear">N</div>
-                <div style="margin-top: 20px;">
-                    <div style="font-size: 0.8em; color: #888; margin-bottom: 5px;">ENGINE RPM</div>
-                    <div class="rpm-bar">
-                        <div class="rpm-fill" id="rpmFill"></div>
-                        <div class="rpm-text" id="rpmText">0</div>
-                    </div>
+                <div class="rpm-bar">
+                    <div class="rpm-fill" id="rpmFill"></div>
+                    <div class="rpm-text" id="rpmText">0 RPM</div>
                 </div>
             </div>
 
@@ -366,7 +488,7 @@
                         <div class="steering-center">F1</div>
                     </div>
                 </div>
-                <div class="steering-value" id="steeringValue">0.00°</div>
+                <div class="steering-value" id="steeringValue">0.0°</div>
             </div>
 
             <!-- Pedals -->
@@ -388,19 +510,91 @@
                         <div class="pedal-value"><span id="brakeValue">0</span>%</div>
                     </div>
                 </div>
+                <div class="drs-indicator" id="drsIndicator">
+                    <div class="drs-text">DRS</div>
+                </div>
             </div>
         </div>
 
-        <!-- Lap Times -->
-        <div class="grid">
+        <!-- Secondary Grid: G-Force, Temps, Tyres, Lap Times -->
+        <div class="secondary-grid">
+            <!-- G-Force -->
             <div class="card">
-                <div class="card-title">Current Lap</div>
-                <div class="lap-time" id="currentLap">
-                    <span class="lap-label">CURRENT LAP</span>
-                    0:00.000
+                <div class="card-title">G-Force</div>
+                <div class="gforce-display">
+                    <div class="gforce-item">
+                        <div class="gforce-label">Lateral</div>
+                        <div class="gforce-value" id="gforceLat">0.0</div>
+                    </div>
+                    <div class="gforce-item">
+                        <div class="gforce-label">Longitudinal</div>
+                        <div class="gforce-value" id="gforceLong">0.0</div>
+                    </div>
+                    <div class="gforce-item">
+                        <div class="gforce-label">Vertical</div>
+                        <div class="gforce-value" id="gforceVert">0.0</div>
+                    </div>
                 </div>
             </div>
 
+            <!-- Engine & Brake Temps -->
+            <div class="card">
+                <div class="card-title">Temperatures</div>
+                <div class="temp-grid">
+                    <div class="temp-item">
+                        <div class="temp-label">Engine</div>
+                        <div class="temp-value" id="engineTemp">0°C</div>
+                    </div>
+                    <div class="temp-item">
+                        <div class="temp-label">Brake FL</div>
+                        <div class="temp-value" id="brakeFL">0°C</div>
+                    </div>
+                    <div class="temp-item">
+                        <div class="temp-label">Brake FR</div>
+                        <div class="temp-value" id="brakeFR">0°C</div>
+                    </div>
+                    <div class="temp-item">
+                        <div class="temp-label">Brake RL</div>
+                        <div class="temp-value" id="brakeRL">0°C</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tyre Temperatures -->
+            <div class="card">
+                <div class="card-title">Tyre Temperatures</div>
+                <div class="tyre-grid">
+                    <div class="tyre-item">
+                        <div class="tyre-label">Front Left</div>
+                        <div class="tyre-temp" id="tyreFL">0°C</div>
+                    </div>
+                    <div class="tyre-item">
+                        <div class="tyre-label">Front Right</div>
+                        <div class="tyre-temp" id="tyreFR">0°C</div>
+                    </div>
+                    <div class="tyre-item">
+                        <div class="tyre-label">Rear Left</div>
+                        <div class="tyre-temp" id="tyreRL">0°C</div>
+                    </div>
+                    <div class="tyre-item">
+                        <div class="tyre-label">Rear Right</div>
+                        <div class="tyre-temp" id="tyreRR">0°C</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Lap -->
+            <div class="card">
+                <div class="card-title">Current Lap</div>
+                <div class="lap-time" id="currentLap">
+                    <span class="lap-label">CURRENT</span>
+                    0:00.000
+                </div>
+            </div>
+        </div>
+
+        <!-- Lap Times Grid -->
+        <div class="secondary-grid">
             <div class="card">
                 <div class="card-title">Last Lap</div>
                 <div class="lap-time" id="lastLap">
@@ -409,15 +603,15 @@
                 </div>
                 <div class="sectors">
                     <div class="sector">
-                        <div class="sector-label">SECTOR 1</div>
+                        <div class="sector-label">S1</div>
                         <div class="sector-time" id="sector1">--:--.---</div>
                     </div>
                     <div class="sector">
-                        <div class="sector-label">SECTOR 2</div>
+                        <div class="sector-label">S2</div>
                         <div class="sector-time" id="sector2">--:--.---</div>
                     </div>
                     <div class="sector">
-                        <div class="sector-label">SECTOR 3</div>
+                        <div class="sector-label">S3</div>
                         <div class="sector-time" id="sector3">--:--.---</div>
                     </div>
                 </div>
@@ -430,30 +624,45 @@
                     0:00.000
                 </div>
             </div>
-        </div>
 
-        <!-- Singapore GP Record -->
-        <div class="card singapore-record">
-            <div class="record-title">🏆 SINGAPORE GP - SESSION RECORD 🏆</div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 20px;">
-                <div style="text-align: center;">
-                    <div style="font-size: 0.8em; opacity: 0.8;">BEST LAP</div>
-                    <div style="font-size: 2em; font-weight: bold; font-family: 'Courier New';" id="sgBestLap">--:--.---</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 1</div>
-                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector1">--:--.---</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 2</div>
-                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector2">--:--.---</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 0.8em; opacity: 0.8;">SECTOR 3</div>
-                    <div style="font-size: 1.5em; font-weight: bold; font-family: 'Courier New';" id="sgSector3">--:--.---</div>
+            <div class="card" style="grid-column: span 2; background: linear-gradient(135deg, #e10600 0%, #aa0000 100%); border-color: #ff4444;">
+                <div class="card-title" style="color: #fff;">🏆 SINGAPORE GP SESSION RECORD</div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 12px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75em; opacity: 0.8;">BEST LAP</div>
+                        <div style="font-size: 1.8em; font-weight: bold; font-family: 'Courier New';" id="sgBestLap">--:--.---</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75em; opacity: 0.8;">SECTOR 1</div>
+                        <div style="font-size: 1.3em; font-weight: bold; font-family: 'Courier New';" id="sgSector1">--:--.---</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75em; opacity: 0.8;">SECTOR 2</div>
+                        <div style="font-size: 1.3em; font-weight: bold; font-family: 'Courier New';" id="sgSector2">--:--.---</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.75em; opacity: 0.8;">SECTOR 3</div>
+                        <div style="font-size: 1.3em; font-weight: bold; font-family: 'Courier New';" id="sgSector3">--:--.---</div>
+                    </div>
                 </div>
             </div>
-            <div style="text-align: center; margin-top: 15px; font-size: 0.8em; opacity: 0.7;" id="sgTimestamp">--</div>
+        </div>
+
+        <!-- Time Charts -->
+        <div class="chart-grid">
+            <div class="card">
+                <div class="card-title">Speed & Throttle History</div>
+                <div class="chart-container">
+                    <canvas id="speedChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Brake & Gear History</div>
+                <div class="chart-container">
+                    <canvas id="brakeChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -461,9 +670,86 @@
         // WebSocket connection
         const ws = new WebSocket('ws://' + window.location.host);
         
+        // Chart data storage
+        const maxDataPoints = 100;
+        const speedData = [];
+        const throttleData = [];
+        const brakeData = [];
+        const gearData = [];
+        const timeLabels = [];
+
+        // Initialize charts
+        const speedChart = new Chart(document.getElementById('speedChart'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Speed (km/h)',
+                    data: speedData,
+                    borderColor: '#00ff00',
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Throttle (%)',
+                    data: throttleData,
+                    borderColor: '#ffff00',
+                    backgroundColor: 'rgba(255, 255, 0, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: {
+                    y: { type: 'linear', position: 'left', ticks: { color: '#00ff00' }, grid: { color: '#333' } },
+                    y1: { type: 'linear', position: 'right', ticks: { color: '#ffff00' }, grid: { display: false } },
+                    x: { ticks: { color: '#888' }, grid: { color: '#333' } }
+                }
+            }
+        });
+
+        const brakeChart = new Chart(document.getElementById('brakeChart'), {
+            type: 'line',
+            data: {
+                labels: timeLabels,
+                datasets: [{
+                    label: 'Brake (%)',
+                    data: brakeData,
+                    borderColor: '#ff0000',
+                    backgroundColor: 'rgba(255, 0, 0, 0.1)',
+                    tension: 0.4,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Gear',
+                    data: gearData,
+                    borderColor: '#00ffff',
+                    backgroundColor: 'rgba(0, 255, 255, 0.1)',
+                    tension: 0.4,
+                    stepped: true,
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: {
+                    y: { type: 'linear', position: 'left', ticks: { color: '#ff0000' }, grid: { color: '#333' } },
+                    y1: { type: 'linear', position: 'right', ticks: { color: '#00ffff' }, grid: { display: false }, min: -1, max: 8 },
+                    x: { ticks: { color: '#888' }, grid: { color: '#333' } }
+                }
+            }
+        });
+
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             updateDashboard(data);
+            updateCharts(data);
         };
 
         function updateDashboard(data) {
@@ -481,24 +767,48 @@
             document.getElementById('gear').textContent = gearText;
             
             // RPM
-            const rpmPercent = (data.rpm / 15000) * 100;
+            const rpmPercent = Math.min(((data.rpm || 0) / 15000) * 100, 100);
             document.getElementById('rpmFill').style.width = rpmPercent + '%';
-            document.getElementById('rpmText').textContent = (data.rpm || 0).toLocaleString();
+            document.getElementById('rpmText').textContent = (data.rpm || 0).toLocaleString() + ' RPM';
             
             // Steering
-            const steeringDegrees = (data.steering || 0) * 45; // Convert to degrees
+            const steeringDegrees = (data.steering || 0) * 450;
             document.getElementById('steeringWheel').style.transform = `rotate(${steeringDegrees}deg)`;
             document.getElementById('steeringValue').textContent = steeringDegrees.toFixed(1) + '°';
             
             // Pedals
             document.getElementById('throttleFill').style.height = (data.throttle || 0) + '%';
             document.getElementById('throttleValue').textContent = data.throttle || 0;
-            
             document.getElementById('brakeFill').style.height = (data.brake || 0) + '%';
             document.getElementById('brakeValue').textContent = data.brake || 0;
             
+            // DRS
+            const drsIndicator = document.getElementById('drsIndicator');
+            if (data.drs === 1) {
+                drsIndicator.classList.add('active');
+            } else {
+                drsIndicator.classList.remove('active');
+            }
+            
+            // G-Force (placeholder - will add when Motion packet is parsed)
+            document.getElementById('gforceLat').textContent = (data.gforceLat || 0).toFixed(1);
+            document.getElementById('gforceLong').textContent = (data.gforceLong || 0).toFixed(1);
+            document.getElementById('gforceVert').textContent = (data.gforceVert || 0).toFixed(1);
+            
+            // Temperatures (placeholder - will add when Telemetry packet is fully parsed)
+            document.getElementById('engineTemp').textContent = (data.engineTemp || 0) + '°C';
+            document.getElementById('brakeFL').textContent = (data.brakeFL || 0) + '°C';
+            document.getElementById('brakeFR').textContent = (data.brakeFR || 0) + '°C';
+            document.getElementById('brakeRL').textContent = (data.brakeRL || 0) + '°C';
+            
+            // Tyre Temperatures
+            document.getElementById('tyreFL').textContent = (data.tyreFL || 0) + '°C';
+            document.getElementById('tyreFR').textContent = (data.tyreFR || 0) + '°C';
+            document.getElementById('tyreRL').textContent = (data.tyreRL || 0) + '°C';
+            document.getElementById('tyreRR').textContent = (data.tyreRR || 0) + '°C';
+            
             // Lap times
-            document.getElementById('currentLap').innerHTML = `<span class="lap-label">CURRENT LAP</span>${data.currentLapTimeStr || '0:00.000'}`;
+            document.getElementById('currentLap').innerHTML = `<span class="lap-label">CURRENT</span>${data.currentLapTimeStr || '0:00.000'}`;
             document.getElementById('lastLap').innerHTML = `<span class="lap-label">LAST LAP</span>${data.lastLapTimeStr || '0:00.000'}`;
             document.getElementById('bestLap').innerHTML = `<span class="lap-label">PERSONAL BEST</span>${data.bestLapTimeStr || '0:00.000'}`;
             
@@ -506,6 +816,27 @@
             document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
             document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
             document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
+        }
+
+        function updateCharts(data) {
+            const now = new Date().toLocaleTimeString();
+            
+            if (timeLabels.length >= maxDataPoints) {
+                timeLabels.shift();
+                speedData.shift();
+                throttleData.shift();
+                brakeData.shift();
+                gearData.shift();
+            }
+            
+            timeLabels.push(now);
+            speedData.push(data.speed || 0);
+            throttleData.push(data.throttle || 0);
+            brakeData.push(data.brake || 0);
+            gearData.push(data.gear || 0);
+            
+            speedChart.update('none');
+            brakeChart.update('none');
         }
 
         // Fetch Singapore GP record
@@ -517,16 +848,11 @@
                     document.getElementById('sgSector1').textContent = data.sector1 || '--:--.---';
                     document.getElementById('sgSector2').textContent = data.sector2 || '--:--.---';
                     document.getElementById('sgSector3').textContent = data.sector3 || '--:--.---';
-                    if (data.timestamp) {
-                        document.getElementById('sgTimestamp').textContent = 'Set: ' + new Date(data.timestamp).toLocaleString();
-                    }
                 });
         }
 
-        // Update Singapore record every 5 seconds
         setInterval(updateSingaporeRecord, 5000);
         updateSingaporeRecord();
     </script>
 </body>
 </html>
-

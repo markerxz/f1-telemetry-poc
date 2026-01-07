@@ -32,6 +32,22 @@ let latestData = {
     steering: 0,
     drs: 0,
     
+    // Temperatures
+    engineTemp: 0,
+    brakeFL: 0,
+    brakeFR: 0,
+    brakeRL: 0,
+    brakeRR: 0,
+    tyreFL: 0,
+    tyreFR: 0,
+    tyreRL: 0,
+    tyreRR: 0,
+    
+    // G-Force
+    gforceLat: 0,
+    gforceLong: 0,
+    gforceVert: 0,
+    
     // Lap data
     currentLapTime: 0,
     currentLapTimeStr: '0:00.000',
@@ -104,7 +120,7 @@ function parsePacket(buffer) {
             const carDataSize = 66; // CarTelemetryData size from official spec
             const offset = 29 + (carIdx * carDataSize);
             
-            if (buffer.length >= offset + 19) {
+            if (buffer.length >= offset + 60) {
                 latestData.speed = buffer.readUInt16LE(offset + 0);
                 latestData.throttle = Math.round(buffer.readFloatLE(offset + 2) * 100);
                 latestData.steering = buffer.readFloatLE(offset + 6);
@@ -113,6 +129,34 @@ function parsePacket(buffer) {
                 latestData.rpm = buffer.readUInt16LE(offset + 16);
                 latestData.drs = buffer.readUInt8(offset + 18);
                 latestData.maxRpm = 15000;
+                
+                // Brake temperatures (4 x uint16)
+                latestData.brakeFL = buffer.readUInt16LE(offset + 22);
+                latestData.brakeFR = buffer.readUInt16LE(offset + 24);
+                latestData.brakeRL = buffer.readUInt16LE(offset + 26);
+                latestData.brakeRR = buffer.readUInt16LE(offset + 28);
+                
+                // Tyre surface temperatures (4 x uint8)
+                latestData.tyreFL = buffer.readUInt8(offset + 30);
+                latestData.tyreFR = buffer.readUInt8(offset + 31);
+                latestData.tyreRL = buffer.readUInt8(offset + 32);
+                latestData.tyreRR = buffer.readUInt8(offset + 33);
+                
+                // Engine temperature (uint16)
+                latestData.engineTemp = buffer.readUInt16LE(offset + 38);
+            }
+        }
+        
+        // Packet ID 0 = Motion (1349 bytes) - for G-Force
+        if (packetId === 0 && buffer.length === 1349) {
+            const carMotionSize = 60; // CarMotionData size from official spec
+            const offset = 29 + (carIdx * carMotionSize);
+            
+            if (buffer.length >= offset + 48) {
+                // G-Force values (3 x float)
+                latestData.gforceLat = buffer.readFloatLE(offset + 36);
+                latestData.gforceLong = buffer.readFloatLE(offset + 40);
+                latestData.gforceVert = buffer.readFloatLE(offset + 44);
             }
         }
         
