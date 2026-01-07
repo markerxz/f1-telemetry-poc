@@ -14,14 +14,16 @@
 
         html, body {
             font-family: 'Segoe UI', 'Arial', sans-serif;
-            background: #0a0a0a;
+            background: #000;
             color: #fff;
-            overflow: hidden;
-            width: 100%;
-            height: 100%;
+            overflow: hidden !important;
+            width: 100vw;
+            height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
+            margin: 0;
+            padding: 0;
         }
 
         /* Top Bar */
@@ -84,9 +86,10 @@
             display: grid;
             grid-template-columns: 1fr 1.4fr 1fr;
             height: calc(100vh - 200px);
+            max-height: calc(100vh - 200px);
             gap: 20px;
             padding: 20px;
-            overflow: hidden;
+            overflow: hidden !important;
         }
 
         /* Left Column - Charts */
@@ -94,6 +97,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            overflow: hidden;
         }
 
         .chart-box {
@@ -107,12 +111,12 @@
 
         .chart-title {
             font-size: 2.4em;
-            color: #00ffff;
+            color: #a4d233;
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 3px;
             font-weight: bold;
-            text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+            text-shadow: 0 0 20px rgba(164, 210, 51, 0.6);
         }
 
         .chart-container {
@@ -159,9 +163,9 @@
         .speed-value {
             font-size: 18em;
             font-weight: bold;
-            color: #00ffff;
+            color: #a4d233;
             line-height: 1;
-            text-shadow: 0 0 60px rgba(0, 255, 255, 0.8);
+            text-shadow: 0 0 60px rgba(164, 210, 51, 0.8);
             font-family: 'Courier New', monospace;
         }
 
@@ -189,9 +193,9 @@
         .lap-time {
             font-size: 12em;
             font-weight: bold;
-            color: #ff00ff;
+            color: #a4d233;
             line-height: 1;
-            text-shadow: 0 0 60px rgba(255, 0, 255, 0.8);
+            text-shadow: 0 0 60px rgba(164, 210, 51, 0.8);
             font-family: 'Courier New', monospace;
         }
 
@@ -240,8 +244,8 @@
         .gear-value {
             font-size: 16em;
             font-weight: bold;
-            color: #00ffff;
-            text-shadow: 0 0 50px rgba(0, 255, 255, 0.9);
+            color: #a4d233;
+            text-shadow: 0 0 50px rgba(164, 210, 51, 0.9);
             font-family: 'Courier New', monospace;
         }
 
@@ -433,6 +437,7 @@
             display: flex;
             flex-direction: column;
             gap: 15px;
+            overflow: hidden;
         }
 
         .data-box {
@@ -445,14 +450,14 @@
 
         .data-title {
             font-size: 2.4em;
-            color: #ff00ff;
+            color: #a4d233;
             margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 3px;
-            border-bottom: 3px solid #ff00ff;
+            border-bottom: 3px solid #a4d233;
             padding-bottom: 10px;
             font-weight: bold;
-            text-shadow: 0 0 20px rgba(255, 0, 255, 0.6);
+            text-shadow: 0 0 20px rgba(164, 210, 51, 0.6);
         }
 
         .sectors-grid {
@@ -480,8 +485,8 @@
             font-size: 2.4em;
             font-weight: bold;
             font-family: 'Courier New', monospace;
-            color: #00ffff;
-            text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+            color: #a4d233;
+            text-shadow: 0 0 10px rgba(164, 210, 51, 0.6);
         }
 
         .sector-best {
@@ -522,9 +527,9 @@
         }
 
         .lap-history-item.best {
-            background: linear-gradient(90deg, #ff00ff 0%, #00ffff 100%);
-            border: 3px solid #ff00ff;
-            box-shadow: 0 0 30px rgba(255, 0, 255, 0.8);
+            background: linear-gradient(90deg, #a4d233 0%, #8bc234 100%);
+            border: 3px solid #a4d233;
+            box-shadow: 0 0 30px rgba(164, 210, 51, 0.8);
         }
 
         .lap-number {
@@ -888,8 +893,8 @@
                 datasets: [{
                     label: 'Speed',
                     data: speedData,
-                    borderColor: '#00ffff',
-                    backgroundColor: 'rgba(0, 255, 255, 0.2)',
+                    borderColor: '#a4d233',
+                    backgroundColor: 'rgba(164, 210, 51, 0.2)',
                     borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0,
@@ -972,16 +977,16 @@
                 datasets: [{
                     label: 'Lateral',
                     data: gforceLateralData,
-                    borderColor: '#ff00ff',
-                    backgroundColor: 'rgba(255, 0, 255, 0.2)',
+                    borderColor: '#a4d233',
+                    backgroundColor: 'rgba(164, 210, 51, 0.2)',
                     borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0
                 }, {
                     label: 'Longitudinal',
                     data: gforceLongitudinalData,
-                    borderColor: '#ffff00',
-                    backgroundColor: 'rgba(255, 255, 0, 0.2)',
+                    borderColor: '#8bc234',
+                    backgroundColor: 'rgba(139, 194, 52, 0.2)',
                     borderWidth: 4,
                     tension: 0.4,
                     pointRadius: 0
