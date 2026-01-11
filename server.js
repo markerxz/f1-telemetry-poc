@@ -74,6 +74,7 @@ let latestData = {
     completedSector1: 0,
     completedSector2: 0,
     completedSector3: 0,
+    completedLapValid: 1,  // 0 = invalid, 1 = valid
     
     // Track position
     lapDistance: 0,
@@ -102,7 +103,8 @@ let currentLapSectors = {
     sector1: 0,
     sector2: 0,
     sector3: 0,
-    lapNumber: 0
+    lapNumber: 0,
+    isValid: 1  // 0 = invalid, 1 = valid
 };
 
 // Track names
@@ -206,8 +208,10 @@ function parsePacket(buffer) {
                 const sector2Min = buffer.readUInt8(offset + 13);
                 const sector2Time = (sector2Min * 60000) + sector2MS;
                 
-                // Lap number
+                // Lap number and validity
                 const currentLapNum = buffer.readUInt8(offset + 30);
+                const currentLapInvalid = buffer.readUInt8(offset + 29);  // 0 = valid, 1 = invalid
+                const isLapValid = currentLapInvalid === 0 ? 1 : 0;  // Invert for database (1 = valid)
                 
                 // Store current lap sector times (for display and for saving when lap completes)
                 latestData.sector1Time = sector1Time;
@@ -224,6 +228,9 @@ function parsePacket(buffer) {
                     latestData.sector3TimeStr = '--:--.---';
                 }
                 
+                // Store current lap validity
+                latestData.currentLapValid = isLapValid;
+                
                 // When lap completes (lastLapTime changes), save the sector times from the PREVIOUS lap
                 if (latestData.lastLapTime > 0 && latestData.lastLapTime !== previousLastLapTime) {
                     // Use the stored sector times from when the lap was being driven
@@ -233,26 +240,31 @@ function parsePacket(buffer) {
                     }
                     
                     // Store completed lap info for database
-                    // The completed lap number is the current lap minus 1, but ensure it's at least 1
-                    latestData.completedLapNumber = Math.max(1, currentLapNum > 0 ? currentLapNum - 1 : 1);
+                    // Use the lap number that was stored BEFORE completion
+                    latestData.completedLapNumber = currentLapSectors.lapNumber || Math.max(1, currentLapNum - 1);
                     latestData.completedSector1 = currentLapSectors.sector1;
                     latestData.completedSector2 = currentLapSectors.sector2;
                     latestData.completedSector3 = currentLapSectors.sector3;
+                    latestData.completedLapValid = currentLapSectors.isValid;
+                    
+                    console.log(`[Lap Complete] Lap ${latestData.completedLapNumber}, Time: ${latestData.lastLapTimeStr}, Valid: ${latestData.completedLapValid ? 'YES' : 'NO'}`);
                 }
                 
                 // Always keep completed lap data available (for display)
                 if (latestData.lastLapTime > 0 && latestData.completedLapNumber === 0) {
                     // If we have a last lap time but no completed lap number yet, set it
-                    latestData.completedLapNumber = Math.max(1, currentLapNum > 0 ? currentLapNum - 1 : 1);
+                    latestData.completedLapNumber = currentLapSectors.lapNumber || Math.max(1, currentLapNum - 1);
                     latestData.completedSector1 = currentLapSectors.sector1;
                     latestData.completedSector2 = currentLapSectors.sector2;
                     latestData.completedSector3 = currentLapSectors.sector3;
+                    latestData.completedLapValid = currentLapSectors.isValid;
                 }
                 
-                // Update current lap sector tracking
+                // Update current lap sector tracking (for the lap currently being driven)
                 currentLapSectors.sector1 = sector1Time;
                 currentLapSectors.sector2 = sector2Time;
                 currentLapSectors.lapNumber = currentLapNum;
+                currentLapSectors.isValid = isLapValid;
                 
                 // Lap distance (float at offset 22)
                 latestData.lapDistance = buffer.readFloatLE(offset + 22);

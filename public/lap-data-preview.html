@@ -377,6 +377,7 @@
                             <th>#</th>
                             <th>Lap</th>
                             <th>Driver</th>
+                            <th>Valid</th>
                             <th>Total Time</th>
                             <th>Sector 1</th>
                             <th>Sector 2</th>
@@ -388,7 +389,7 @@
                     </thead>
                     <tbody id="lapHistoryTable">
                         <tr>
-                            <td colspan="10" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td>
+                            <td colspan="11" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td>
                         </tr>
                     </tbody>
                 </table>
@@ -480,6 +481,7 @@
                 sector1Ms: data.completedSector1 || 0,
                 sector2Ms: data.completedSector2 || 0,
                 sector3Ms: data.completedSector3 || 0,
+                isValid: data.completedLapValid !== undefined ? data.completedLapValid : 1,
                 trackName: data.trackName,
                 sessionType: data.sessionType,
                 timestamp: new Date().toISOString()
@@ -499,6 +501,7 @@
             const sector3 = data.completedSector3 || 0;
             const sessionId = data.sessionId || 'UNKNOWN';
             const driverName = data.driverName || 'Unknown';
+            const isValid = data.completedLapValid !== undefined ? data.completedLapValid : 1;
             
             const sql = `<span class="sql-keyword">INSERT INTO</span> F1_LAP_TIMES (
     SESSION_ID,
@@ -525,7 +528,7 @@
     <span class="sql-number">${sector1}</span>,
     <span class="sql-number">${sector2}</span>,
     <span class="sql-number">${sector3}</span>,
-    <span class="sql-number">1</span>
+    <span class="sql-number">${isValid}</span>
 );`;
 
             document.getElementById('sqlPreview').innerHTML = sql;
@@ -535,23 +538,28 @@
             const tbody = document.getElementById('lapHistoryTable');
             
             if (capturedLaps.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td></tr>';
                 return;
             }
 
-            // Find best lap
-            const bestLapTime = Math.min(...capturedLaps.map(l => l.lapTimeMs));
+            // Find best lap (only among valid laps)
+            const validLaps = capturedLaps.filter(l => l.isValid === 1);
+            const bestLapTime = validLaps.length > 0 ? Math.min(...validLaps.map(l => l.lapTimeMs)) : null;
 
             tbody.innerHTML = capturedLaps.map(lap => {
-                const isBest = lap.lapTimeMs === bestLapTime;
+                const isBest = lap.isValid === 1 && lap.lapTimeMs === bestLapTime;
+                const isInvalid = lap.isValid === 0;
                 const rowClass = isBest ? 'best-lap' : '';
                 const bestBadge = isBest ? ' 🏆' : '';
+                const validIcon = lap.isValid === 1 ? '✅' : '❌';
+                const validStyle = lap.isValid === 0 ? 'style="color: #ff4444;"' : '';
                 
                 return `<tr class="${rowClass}">
                     <td>${lap.id}</td>
-                    <td>${lap.lapNumber}${bestBadge}</td>
+                    <td ${validStyle}>${lap.lapNumber}${bestBadge}</td>
                     <td>${lap.driverName}</td>
-                    <td>${lap.lapTimeFormatted}</td>
+                    <td>${validIcon}</td>
+                    <td ${validStyle}>${lap.lapTimeFormatted}</td>
                     <td>${formatMs(lap.sector1Ms)}</td>
                     <td>${formatMs(lap.sector2Ms)}</td>
                     <td>${formatMs(lap.sector3Ms)}</td>
@@ -590,7 +598,7 @@
             sql += `-- Total Laps: ${capturedLaps.length}\n\n`;
 
             capturedLaps.forEach(lap => {
-                sql += `INSERT INTO F1_LAP_TIMES (SESSION_ID, DRIVER_NAME, SESSION_TIMESTAMP, TRACK_NAME, SESSION_TYPE, LAP_NUMBER, LAP_TIME_MS, LAP_TIME_FORMATTED, SECTOR1_MS, SECTOR2_MS, SECTOR3_MS, IS_VALID) VALUES ('${lap.sessionId}', '${lap.driverName}', CURRENT_TIMESTAMP, '${lap.trackName}', '${lap.sessionType}', ${lap.lapNumber}, ${lap.lapTimeMs}, '${lap.lapTimeFormatted}', ${lap.sector1Ms}, ${lap.sector2Ms}, ${lap.sector3Ms}, 1);\n`;
+                sql += `INSERT INTO F1_LAP_TIMES (SESSION_ID, DRIVER_NAME, SESSION_TIMESTAMP, TRACK_NAME, SESSION_TYPE, LAP_NUMBER, LAP_TIME_MS, LAP_TIME_FORMATTED, SECTOR1_MS, SECTOR2_MS, SECTOR3_MS, IS_VALID) VALUES ('${lap.sessionId}', '${lap.driverName}', CURRENT_TIMESTAMP, '${lap.trackName}', '${lap.sessionType}', ${lap.lapNumber}, ${lap.lapTimeMs}, '${lap.lapTimeFormatted}', ${lap.sector1Ms}, ${lap.sector2Ms}, ${lap.sector3Ms}, ${lap.isValid});\n`;
             });
 
             // Download as file
