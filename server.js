@@ -22,6 +22,11 @@ let latestData = {
     connected: false,
     timestamp: null,
     
+    // Session and driver info
+    sessionId: null,
+    driverName: 'Unknown',
+    sessionStartTime: null,
+    
     // Car telemetry
     speed: 0,
     gear: 0,
@@ -331,6 +336,23 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     console.log('[WebSocket] Client connected');
     ws.send(JSON.stringify(latestData));
+    
+    // Handle messages from client (driver name, session ID)
+    ws.on('message', (message) => {
+        try {
+            const data = JSON.parse(message);
+            if (data.type === 'setDriver') {
+                latestData.driverName = data.driverName || 'Unknown';
+                latestData.sessionId = data.sessionId;
+                if (!latestData.sessionStartTime) {
+                    latestData.sessionStartTime = new Date().toISOString();
+                }
+                console.log(`[Session] Driver: ${latestData.driverName}, Session: ${latestData.sessionId}`);
+            }
+        } catch (err) {
+            console.error('[WebSocket] Error parsing message:', err);
+        }
+    });
 });
 
 function broadcastData() {

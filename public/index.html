@@ -76,6 +76,49 @@
             box-shadow: 0 0 20px rgba(0,255,0,0.8);
         }
 
+        .driver-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: flex-end;
+        }
+
+        .driver-input-label {
+            font-size: 0.9em;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .driver-input {
+            background: #0f0f0f;
+            border: 2px solid #a4d233;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            color: #a4d233;
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+
+        .driver-input:focus {
+            outline: none;
+            border-color: #b5e344;
+            box-shadow: 0 0 15px rgba(164, 210, 51, 0.5);
+        }
+
+        .driver-input::placeholder {
+            color: #444;
+        }
+
+        .session-id-display {
+            font-size: 0.8em;
+            color: #666;
+            font-family: 'Consolas', monospace;
+        }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.6; transform: scale(0.9); }
@@ -688,6 +731,17 @@
                 <div>LAP <span id="lapNumber">0</span></div>
             </div>
         </div>
+        <div class="driver-input-container">
+            <label class="driver-input-label" for="driverName">Driver Name</label>
+            <input 
+                type="text" 
+                id="driverName" 
+                class="driver-input" 
+                placeholder="Enter your name"
+                maxlength="50"
+            >
+            <div class="session-id-display" id="sessionIdDisplay">Session: --</div>
+        </div>
         <div class="live-indicator">
             <span>LIVE</span>
             <div class="live-dot"></div>
@@ -884,6 +938,44 @@
         let packetCount = 0;
         let trackLength = 5000; // Default Singapore track length in meters
         let lastRecordedLapTime = 0; // Track last lap to avoid duplicates
+
+        // Session and driver tracking
+        let sessionId = generateSessionId();
+        let driverName = localStorage.getItem('f1_driver_name') || '';
+        
+        // Generate a unique session ID
+        function generateSessionId() {
+            return 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // Initialize driver name input
+        document.getElementById('driverName').value = driverName;
+        document.getElementById('sessionIdDisplay').textContent = 'Session: ' + sessionId.substr(0, 20) + '...';
+        
+        // Save driver name and send to server
+        document.getElementById('driverName').addEventListener('change', function() {
+            driverName = this.value.trim();
+            localStorage.setItem('f1_driver_name', driverName);
+            
+            // Send driver name to server
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'setDriver',
+                    driverName: driverName,
+                    sessionId: sessionId
+                }));
+            }
+        });
+        
+        // Send driver info when connection opens
+        ws.onopen = () => {
+            console.log('WebSocket connected');
+            ws.send(JSON.stringify({
+                type: 'setDriver',
+                driverName: driverName,
+                sessionId: sessionId
+            }));
+        };
 
         // Chart.js default configuration
         Chart.defaults.color = '#666';

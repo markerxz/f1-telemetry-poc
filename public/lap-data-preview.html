@@ -260,6 +260,10 @@
                 <div class="status-value" id="connectionStatus">DISCONNECTED</div>
             </div>
             <div class="status-item">
+                <div class="status-label">Driver</div>
+                <div class="status-value" id="driverName">--</div>
+            </div>
+            <div class="status-item">
                 <div class="status-label">Track</div>
                 <div class="status-value" id="trackName">--</div>
             </div>
@@ -342,6 +346,8 @@
                 <div class="schema-box">
 <pre><span class="sql-keyword">CREATE TABLE</span> F1_LAP_TIMES (
     LAP_ID <span class="sql-keyword">NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,
+    SESSION_ID <span class="sql-keyword">VARCHAR2</span>(50),        <span style="color: #666">-- Unique session identifier</span>
+    DRIVER_NAME <span class="sql-keyword">VARCHAR2</span>(100),      <span style="color: #666">-- Name of the driver</span>
     SESSION_TIMESTAMP <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
     TRACK_NAME <span class="sql-keyword">VARCHAR2</span>(50),
     SESSION_TYPE <span class="sql-keyword">VARCHAR2</span>(20),
@@ -356,7 +362,9 @@
 );
 
 <span class="sql-keyword">CREATE INDEX</span> idx_lap_times_track <span class="sql-keyword">ON</span> F1_LAP_TIMES(TRACK_NAME);
-<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_session <span class="sql-keyword">ON</span> F1_LAP_TIMES(SESSION_TIMESTAMP);</pre>
+<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_session <span class="sql-keyword">ON</span> F1_LAP_TIMES(SESSION_TIMESTAMP);
+<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_session_id <span class="sql-keyword">ON</span> F1_LAP_TIMES(SESSION_ID);
+<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_driver <span class="sql-keyword">ON</span> F1_LAP_TIMES(DRIVER_NAME);</pre>
                 </div>
             </div>
 
@@ -368,6 +376,7 @@
                         <tr>
                             <th>#</th>
                             <th>Lap</th>
+                            <th>Driver</th>
                             <th>Total Time</th>
                             <th>Sector 1</th>
                             <th>Sector 2</th>
@@ -379,7 +388,7 @@
                     </thead>
                     <tbody id="lapHistoryTable">
                         <tr>
-                            <td colspan="9" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td>
+                            <td colspan="10" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td>
                         </tr>
                     </tbody>
                 </table>
@@ -435,6 +444,7 @@
             }
 
             // Session info
+            document.getElementById('driverName').textContent = data.driverName || '--';
             document.getElementById('trackName').textContent = data.trackName || '--';
             document.getElementById('sessionType').textContent = data.sessionType || '--';
 
@@ -462,6 +472,8 @@
         function captureLap(data) {
             const lap = {
                 id: capturedLaps.length + 1,
+                sessionId: data.sessionId || '--',
+                driverName: data.driverName || 'Unknown',
                 lapNumber: data.completedLapNumber || (data.lapNumber - 1),
                 lapTimeMs: data.lastLapTime,
                 lapTimeFormatted: data.lastLapTimeStr,
@@ -485,8 +497,12 @@
             const sector1 = data.completedSector1 || 0;
             const sector2 = data.completedSector2 || 0;
             const sector3 = data.completedSector3 || 0;
+            const sessionId = data.sessionId || 'UNKNOWN';
+            const driverName = data.driverName || 'Unknown';
             
             const sql = `<span class="sql-keyword">INSERT INTO</span> F1_LAP_TIMES (
+    SESSION_ID,
+    DRIVER_NAME,
     SESSION_TIMESTAMP,
     TRACK_NAME,
     SESSION_TYPE,
@@ -498,6 +514,8 @@
     SECTOR3_MS,
     IS_VALID
 ) <span class="sql-keyword">VALUES</span> (
+    <span class="sql-string">'${sessionId}'</span>,
+    <span class="sql-string">'${driverName}'</span>,
     <span class="sql-keyword">CURRENT_TIMESTAMP</span>,
     <span class="sql-string">'${data.trackName}'</span>,
     <span class="sql-string">'${data.sessionType}'</span>,
@@ -517,7 +535,7 @@
             const tbody = document.getElementById('lapHistoryTable');
             
             if (capturedLaps.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td></tr>';
                 return;
             }
 
@@ -532,6 +550,7 @@
                 return `<tr class="${rowClass}">
                     <td>${lap.id}</td>
                     <td>${lap.lapNumber}${bestBadge}</td>
+                    <td>${lap.driverName}</td>
                     <td>${lap.lapTimeFormatted}</td>
                     <td>${formatMs(lap.sector1Ms)}</td>
                     <td>${formatMs(lap.sector2Ms)}</td>
@@ -571,7 +590,7 @@
             sql += `-- Total Laps: ${capturedLaps.length}\n\n`;
 
             capturedLaps.forEach(lap => {
-                sql += `INSERT INTO F1_LAP_TIMES (SESSION_TIMESTAMP, TRACK_NAME, SESSION_TYPE, LAP_NUMBER, LAP_TIME_MS, LAP_TIME_FORMATTED, SECTOR1_MS, SECTOR2_MS, SECTOR3_MS, IS_VALID) VALUES (CURRENT_TIMESTAMP, '${lap.trackName}', '${lap.sessionType}', ${lap.lapNumber}, ${lap.lapTimeMs}, '${lap.lapTimeFormatted}', ${lap.sector1Ms}, ${lap.sector2Ms}, ${lap.sector3Ms}, 1);\n`;
+                sql += `INSERT INTO F1_LAP_TIMES (SESSION_ID, DRIVER_NAME, SESSION_TIMESTAMP, TRACK_NAME, SESSION_TYPE, LAP_NUMBER, LAP_TIME_MS, LAP_TIME_FORMATTED, SECTOR1_MS, SECTOR2_MS, SECTOR3_MS, IS_VALID) VALUES ('${lap.sessionId}', '${lap.driverName}', CURRENT_TIMESTAMP, '${lap.trackName}', '${lap.sessionType}', ${lap.lapNumber}, ${lap.lapTimeMs}, '${lap.lapTimeFormatted}', ${lap.sector1Ms}, ${lap.sector2Ms}, ${lap.sector3Ms}, 1);\n`;
             });
 
             // Download as file
