@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Lap Data Preview - Database Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #0a0a0a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #a4d233;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px rgba(164, 210, 51, 0.6);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1.2em;
+        }
+
+        .status-bar {
+            background: #1a1a1a;
+            border: 2px solid #a4d233;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .status-item {
+            text-align: center;
+        }
+
+        .status-label {
+            color: #888;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .status-value {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .status-value.connected {
+            color: #00ff00;
+        }
+
+        .status-value.disconnected {
+            color: #ff0000;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .panel h2 {
+            color: #a4d233;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .data-label {
+            color: #888;
+        }
+
+        .data-value {
+            color: #00ff00;
+            font-weight: bold;
+        }
+
+        .sql-panel {
+            grid-column: 1 / -1;
+        }
+
+        .sql-box {
+            background: #0f0f0f;
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            overflow-x: auto;
+            font-size: 0.95em;
+        }
+
+        .sql-statement {
+            color: #ff79c6;
+            margin-bottom: 15px;
+        }
+
+        .sql-keyword {
+            color: #8be9fd;
+        }
+
+        .sql-string {
+            color: #f1fa8c;
+        }
+
+        .sql-number {
+            color: #bd93f9;
+        }
+
+        .lap-history {
+            grid-column: 1 / -1;
+        }
+
+        .lap-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .lap-table th {
+            background: #0f0f0f;
+            color: #a4d233;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #a4d233;
+        }
+
+        .lap-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #222;
+        }
+
+        .lap-table tr:hover {
+            background: #1a1a1a;
+        }
+
+        .best-lap {
+            background: #1a3a1a !important;
+        }
+
+        .schema-panel {
+            grid-column: 1 / -1;
+        }
+
+        .schema-box {
+            background: #0f0f0f;
+            border: 2px solid #444;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .warning {
+            background: #3a1a1a;
+            border: 2px solid #ff4444;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #ff8888;
+        }
+
+        .info {
+            background: #1a1a3a;
+            border: 2px solid #4444ff;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #8888ff;
+        }
+
+        .button {
+            background: #a4d233;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .button:hover {
+            background: #b5e344;
+        }
+
+        .button-danger {
+            background: #ff4444;
+            color: #fff;
+        }
+
+        .button-danger:hover {
+            background: #ff6666;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .recording {
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏎️ F1 Lap Data Preview</h1>
+        <div class="subtitle">Database Integration Testing Tool</div>
+
+        <div class="info">
+            <strong>ℹ️ Testing Mode:</strong> This page shows what data will be captured and stored in the database. 
+            No data is being written to the database yet. Review the data structure and SQL statements below before proceeding.
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <div class="status-label">Telemetry Status</div>
+                <div class="status-value" id="connectionStatus">DISCONNECTED</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Track</div>
+                <div class="status-value" id="trackName">--</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Session</div>
+                <div class="status-value" id="sessionType">--</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">Laps Captured</div>
+                <div class="status-value" id="lapsCaptured">0</div>
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Current Lap Data -->
+            <div class="panel">
+                <h2>📊 Current Lap Data (Live)</h2>
+                <div class="data-row">
+                    <span class="data-label">Current Lap:</span>
+                    <span class="data-value" id="currentLapNum">0</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Current Time:</span>
+                    <span class="data-value" id="currentLapTime">0:00.000</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 1:</span>
+                    <span class="data-value" id="sector1">--:--.---</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 2:</span>
+                    <span class="data-value" id="sector2">--:--.---</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 3:</span>
+                    <span class="data-value" id="sector3">--:--.---</span>
+                </div>
+            </div>
+
+            <!-- Last Completed Lap -->
+            <div class="panel">
+                <h2>✅ Last Completed Lap</h2>
+                <div class="data-row">
+                    <span class="data-label">Lap Number:</span>
+                    <span class="data-value" id="lastLapNum">--</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Total Time:</span>
+                    <span class="data-value" id="lastLapTime">--:--.---</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Total Time (ms):</span>
+                    <span class="data-value" id="lastLapTimeMs">--</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 1 (ms):</span>
+                    <span class="data-value" id="lastSector1Ms">--</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 2 (ms):</span>
+                    <span class="data-value" id="lastSector2Ms">--</span>
+                </div>
+                <div class="data-row">
+                    <span class="data-label">Sector 3 (ms):</span>
+                    <span class="data-value" id="lastSector3Ms">--</span>
+                </div>
+            </div>
+
+            <!-- SQL Statement Preview -->
+            <div class="panel sql-panel">
+                <h2>💾 SQL INSERT Statement (What Will Be Executed)</h2>
+                <div class="sql-box" id="sqlPreview">
+                    <div class="sql-statement">-- Waiting for lap data...</div>
+                </div>
+            </div>
+
+            <!-- Database Schema -->
+            <div class="panel schema-panel">
+                <h2>📋 Database Schema</h2>
+                <div class="schema-box">
+<pre><span class="sql-keyword">CREATE TABLE</span> F1_LAP_TIMES (
+    LAP_ID <span class="sql-keyword">NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,
+    SESSION_TIMESTAMP <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>,
+    TRACK_NAME <span class="sql-keyword">VARCHAR2</span>(50),
+    SESSION_TYPE <span class="sql-keyword">VARCHAR2</span>(20),
+    LAP_NUMBER <span class="sql-keyword">NUMBER</span>,
+    LAP_TIME_MS <span class="sql-keyword">NUMBER</span>,           <span style="color: #666">-- Lap time in milliseconds</span>
+    LAP_TIME_FORMATTED <span class="sql-keyword">VARCHAR2</span>(20), <span style="color: #666">-- e.g., "1:42.567"</span>
+    SECTOR1_MS <span class="sql-keyword">NUMBER</span>,
+    SECTOR2_MS <span class="sql-keyword">NUMBER</span>,
+    SECTOR3_MS <span class="sql-keyword">NUMBER</span>,
+    IS_VALID <span class="sql-keyword">NUMBER</span>(1) <span class="sql-keyword">DEFAULT</span> 1,  <span style="color: #666">-- 1=valid, 0=invalid</span>
+    CREATED_AT <span class="sql-keyword">TIMESTAMP DEFAULT CURRENT_TIMESTAMP</span>
+);
+
+<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_track <span class="sql-keyword">ON</span> F1_LAP_TIMES(TRACK_NAME);
+<span class="sql-keyword">CREATE INDEX</span> idx_lap_times_session <span class="sql-keyword">ON</span> F1_LAP_TIMES(SESSION_TIMESTAMP);</pre>
+                </div>
+            </div>
+
+            <!-- Lap History -->
+            <div class="panel lap-history">
+                <h2>🏁 Captured Laps (This Session)</h2>
+                <table class="lap-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Lap</th>
+                            <th>Total Time</th>
+                            <th>Sector 1</th>
+                            <th>Sector 2</th>
+                            <th>Sector 3</th>
+                            <th>Track</th>
+                            <th>Session</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lapHistoryTable">
+                        <tr>
+                            <td colspan="9" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="button" onclick="clearHistory()">🗑️ Clear History</button>
+            <button class="button" onclick="exportSQL()">📄 Export SQL Statements</button>
+            <button class="button" onclick="window.location.href='/'">🏠 Back to Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        let ws;
+        let capturedLaps = [];
+        let lastRecordedLapTime = 0;
+        let sessionStartTime = new Date();
+
+        function connect() {
+            ws = new WebSocket(`ws://${window.location.hostname}:${window.location.port}`);
+            
+            ws.onopen = () => {
+                console.log('Connected to telemetry server');
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                updateDisplay(data);
+                
+                // Detect completed lap
+                if (data.lastLapTime && data.lastLapTime > 0 && data.lastLapTime !== lastRecordedLapTime) {
+                    captureLap(data);
+                    lastRecordedLapTime = data.lastLapTime;
+                }
+            };
+            
+            ws.onclose = () => {
+                console.log('Disconnected from telemetry server');
+                setTimeout(connect, 2000);
+            };
+        }
+
+        function updateDisplay(data) {
+            // Connection status
+            const statusEl = document.getElementById('connectionStatus');
+            if (data.connected) {
+                statusEl.textContent = 'CONNECTED';
+                statusEl.className = 'status-value connected recording';
+            } else {
+                statusEl.textContent = 'DISCONNECTED';
+                statusEl.className = 'status-value disconnected';
+            }
+
+            // Session info
+            document.getElementById('trackName').textContent = data.trackName || '--';
+            document.getElementById('sessionType').textContent = data.sessionType || '--';
+
+            // Current lap data
+            document.getElementById('currentLapNum').textContent = data.lapNumber || 0;
+            document.getElementById('currentLapTime').textContent = data.currentLapTimeStr || '0:00.000';
+            document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
+            document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
+            document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
+
+            // Last completed lap
+            if (data.lastLapTime > 0) {
+                document.getElementById('lastLapNum').textContent = (data.lapNumber - 1) || '--';
+                document.getElementById('lastLapTime').textContent = data.lastLapTimeStr || '--:--.---';
+                document.getElementById('lastLapTimeMs').textContent = data.lastLapTime || '--';
+                document.getElementById('lastSector1Ms').textContent = data.sector1Time || '--';
+                document.getElementById('lastSector2Ms').textContent = data.sector2Time || '--';
+                document.getElementById('lastSector3Ms').textContent = data.sector3Time || '--';
+
+                // Update SQL preview
+                updateSQLPreview(data);
+            }
+        }
+
+        function captureLap(data) {
+            const lap = {
+                id: capturedLaps.length + 1,
+                lapNumber: data.lapNumber - 1,
+                lapTimeMs: data.lastLapTime,
+                lapTimeFormatted: data.lastLapTimeStr,
+                sector1Ms: data.sector1Time,
+                sector2Ms: data.sector2Time,
+                sector3Ms: data.sector3Time,
+                trackName: data.trackName,
+                sessionType: data.sessionType,
+                timestamp: new Date().toISOString()
+            };
+
+            capturedLaps.push(lap);
+            document.getElementById('lapsCaptured').textContent = capturedLaps.length;
+            
+            updateLapHistoryTable();
+        }
+
+        function updateSQLPreview(data) {
+            const lapNum = data.lapNumber - 1;
+            const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            
+            const sql = `<span class="sql-keyword">INSERT INTO</span> F1_LAP_TIMES (
+    SESSION_TIMESTAMP,
+    TRACK_NAME,
+    SESSION_TYPE,
+    LAP_NUMBER,
+    LAP_TIME_MS,
+    LAP_TIME_FORMATTED,
+    SECTOR1_MS,
+    SECTOR2_MS,
+    SECTOR3_MS,
+    IS_VALID
+) <span class="sql-keyword">VALUES</span> (
+    <span class="sql-keyword">CURRENT_TIMESTAMP</span>,
+    <span class="sql-string">'${data.trackName}'</span>,
+    <span class="sql-string">'${data.sessionType}'</span>,
+    <span class="sql-number">${lapNum}</span>,
+    <span class="sql-number">${data.lastLapTime}</span>,
+    <span class="sql-string">'${data.lastLapTimeStr}'</span>,
+    <span class="sql-number">${data.sector1Time}</span>,
+    <span class="sql-number">${data.sector2Time}</span>,
+    <span class="sql-number">${data.sector3Time}</span>,
+    <span class="sql-number">1</span>
+);`;
+
+            document.getElementById('sqlPreview').innerHTML = sql;
+        }
+
+        function updateLapHistoryTable() {
+            const tbody = document.getElementById('lapHistoryTable');
+            
+            if (capturedLaps.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #666;">No laps captured yet. Start driving in F1 25!</td></tr>';
+                return;
+            }
+
+            // Find best lap
+            const bestLapTime = Math.min(...capturedLaps.map(l => l.lapTimeMs));
+
+            tbody.innerHTML = capturedLaps.map(lap => {
+                const isBest = lap.lapTimeMs === bestLapTime;
+                const rowClass = isBest ? 'best-lap' : '';
+                const bestBadge = isBest ? ' 🏆' : '';
+                
+                return `<tr class="${rowClass}">
+                    <td>${lap.id}</td>
+                    <td>${lap.lapNumber}${bestBadge}</td>
+                    <td>${lap.lapTimeFormatted}</td>
+                    <td>${formatMs(lap.sector1Ms)}</td>
+                    <td>${formatMs(lap.sector2Ms)}</td>
+                    <td>${formatMs(lap.sector3Ms)}</td>
+                    <td>${lap.trackName}</td>
+                    <td>${lap.sessionType}</td>
+                    <td>${new Date(lap.timestamp).toLocaleTimeString()}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function formatMs(ms) {
+            if (!ms || ms === 0) return '--:--.---';
+            const minutes = Math.floor(ms / 60000);
+            const seconds = Math.floor((ms % 60000) / 1000);
+            const milliseconds = ms % 1000;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}.${milliseconds.toString().padStart(3, '0')}`;
+        }
+
+        function clearHistory() {
+            if (confirm('Clear all captured lap data?')) {
+                capturedLaps = [];
+                lastRecordedLapTime = 0;
+                document.getElementById('lapsCaptured').textContent = '0';
+                updateLapHistoryTable();
+            }
+        }
+
+        function exportSQL() {
+            if (capturedLaps.length === 0) {
+                alert('No laps to export!');
+                return;
+            }
+
+            let sql = '-- F1 Lap Times SQL Export\n';
+            sql += `-- Generated: ${new Date().toISOString()}\n`;
+            sql += `-- Total Laps: ${capturedLaps.length}\n\n`;
+
+            capturedLaps.forEach(lap => {
+                sql += `INSERT INTO F1_LAP_TIMES (SESSION_TIMESTAMP, TRACK_NAME, SESSION_TYPE, LAP_NUMBER, LAP_TIME_MS, LAP_TIME_FORMATTED, SECTOR1_MS, SECTOR2_MS, SECTOR3_MS, IS_VALID) VALUES (CURRENT_TIMESTAMP, '${lap.trackName}', '${lap.sessionType}', ${lap.lapNumber}, ${lap.lapTimeMs}, '${lap.lapTimeFormatted}', ${lap.sector1Ms}, ${lap.sector2Ms}, ${lap.sector3Ms}, 1);\n`;
+            });
+
+            // Download as file
+            const blob = new Blob([sql], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `f1_lap_times_${Date.now()}.sql`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Connect on load
+        connect();
+    </script>
+</body>
+</html>
+
