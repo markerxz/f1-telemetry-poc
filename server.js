@@ -209,8 +209,8 @@ function parsePacket(buffer) {
                 const sector2Time = (sector2Min * 60000) + sector2MS;
                 
                 // Lap number and validity
-                const currentLapNum = buffer.readUInt8(offset + 30);
-                const currentLapInvalid = buffer.readUInt8(offset + 29);  // 0 = valid, 1 = invalid
+                const currentLapNum = buffer.readUInt8(offset + 33);  // m_currentLapNum at offset 33
+                const currentLapInvalid = buffer.readUInt8(offset + 37);  // m_currentLapInvalid at offset 37: 0 = valid, 1 = invalid
                 const isLapValid = currentLapInvalid === 0 ? 1 : 0;  // Invert for database (1 = valid)
                 
                 // Store current lap sector times (for display and for saving when lap completes)

@@ -286,6 +286,10 @@
                     <span class="data-value" id="currentLapNum">0</span>
                 </div>
                 <div class="data-row">
+                    <span class="data-label">Lap Status:</span>
+                    <span class="data-value" id="currentLapStatus" style="font-size: 1.5em;">--</span>
+                </div>
+                <div class="data-row">
                     <span class="data-label">Current Time:</span>
                     <span class="data-value" id="currentLapTime">0:00.000</span>
                 </div>
@@ -451,6 +455,20 @@
 
             // Current lap data
             document.getElementById('currentLapNum').textContent = data.lapNumber || 0;
+            
+            // Current lap validity status
+            const lapStatusEl = document.getElementById('currentLapStatus');
+            if (data.currentLapValid === 1) {
+                lapStatusEl.textContent = '✅ CLEAN';
+                lapStatusEl.style.color = '#00ff00';
+            } else if (data.currentLapValid === 0) {
+                lapStatusEl.textContent = '❌ INVALID';
+                lapStatusEl.style.color = '#ff4444';
+            } else {
+                lapStatusEl.textContent = '--';
+                lapStatusEl.style.color = '#888';
+            }
+            
             document.getElementById('currentLapTime').textContent = data.currentLapTimeStr || '0:00.000';
             document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
             document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
