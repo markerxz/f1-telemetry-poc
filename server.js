@@ -56,13 +56,19 @@ let latestData = {
     bestLapTime: 0,
     bestLapTimeStr: '0:00.000',
     
-    // Sector times
+    // Sector times (current lap)
     sector1Time: 0,
     sector1TimeStr: '--:--.---',
     sector2Time: 0,
     sector2TimeStr: '--:--.---',
     sector3Time: 0,
     sector3TimeStr: '--:--.---',
+    
+    // Completed lap data (for database)
+    completedLapNumber: 0,
+    completedSector1: 0,
+    completedSector2: 0,
+    completedSector3: 0,
     
     // Track position
     lapDistance: 0,
@@ -222,7 +228,17 @@ function parsePacket(buffer) {
                     }
                     
                     // Store completed lap info for database
-                    latestData.completedLapNumber = currentLapNum - 1; // The lap that just finished
+                    // The completed lap number is the current lap minus 1, but ensure it's at least 1
+                    latestData.completedLapNumber = Math.max(1, currentLapNum > 0 ? currentLapNum - 1 : 1);
+                    latestData.completedSector1 = currentLapSectors.sector1;
+                    latestData.completedSector2 = currentLapSectors.sector2;
+                    latestData.completedSector3 = currentLapSectors.sector3;
+                }
+                
+                // Always keep completed lap data available (for display)
+                if (latestData.lastLapTime > 0 && latestData.completedLapNumber === 0) {
+                    // If we have a last lap time but no completed lap number yet, set it
+                    latestData.completedLapNumber = Math.max(1, currentLapNum > 0 ? currentLapNum - 1 : 1);
                     latestData.completedSector1 = currentLapSectors.sector1;
                     latestData.completedSector2 = currentLapSectors.sector2;
                     latestData.completedSector3 = currentLapSectors.sector3;
