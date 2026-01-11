@@ -86,6 +86,14 @@ let singaporeBestLap = {
     timestamp: null
 };
 
+// Track sector times for the current lap (to save when lap completes)
+let currentLapSectors = {
+    sector1: 0,
+    sector2: 0,
+    sector3: 0,
+    lapNumber: 0
+};
+
 // Track names
 const TRACK_NAMES = {
     0: 'Melbourne', 1: 'Paul Ricard', 2: 'Shanghai', 3: 'Bahrain', 4: 'Barcelona',
@@ -170,36 +178,65 @@ function parsePacket(buffer) {
             const offset = 29 + (carIdx * lapDataSize);
             
             if (buffer.length >= offset + 31) {
+                const previousLastLapTime = latestData.lastLapTime;
+                
                 latestData.lastLapTime = buffer.readUInt32LE(offset + 0);
                 latestData.lastLapTimeStr = formatLapTime(latestData.lastLapTime);
                 
                 latestData.currentLapTime = buffer.readUInt32LE(offset + 4);
                 latestData.currentLapTimeStr = formatLapTime(latestData.currentLapTime);
                 
-                // Sector times: MS part + Minutes part
+                // Sector times: MS part + Minutes part (these are for CURRENT lap)
                 const sector1MS = buffer.readUInt16LE(offset + 8);
                 const sector1Min = buffer.readUInt8(offset + 10);
-                latestData.sector1Time = (sector1Min * 60000) + sector1MS;
-                latestData.sector1TimeStr = latestData.sector1Time > 0 ? formatLapTime(latestData.sector1Time) : '--:--.---';
+                const sector1Time = (sector1Min * 60000) + sector1MS;
                 
                 const sector2MS = buffer.readUInt16LE(offset + 11);
                 const sector2Min = buffer.readUInt8(offset + 13);
-                latestData.sector2Time = (sector2Min * 60000) + sector2MS;
-                latestData.sector2TimeStr = latestData.sector2Time > 0 ? formatLapTime(latestData.sector2Time) : '--:--.---';
+                const sector2Time = (sector2Min * 60000) + sector2MS;
                 
-                // Calculate sector 3
-                if (latestData.lastLapTime > 0 && latestData.sector1Time > 0 && latestData.sector2Time > 0) {
-                    latestData.sector3Time = latestData.lastLapTime - latestData.sector1Time - latestData.sector2Time;
+                // Lap number
+                const currentLapNum = buffer.readUInt8(offset + 30);
+                
+                // Store current lap sector times (for display and for saving when lap completes)
+                latestData.sector1Time = sector1Time;
+                latestData.sector1TimeStr = sector1Time > 0 ? formatLapTime(sector1Time) : '--:--.---';
+                latestData.sector2Time = sector2Time;
+                latestData.sector2TimeStr = sector2Time > 0 ? formatLapTime(sector2Time) : '--:--.---';
+                
+                // Calculate sector 3 from current lap
+                if (latestData.currentLapTime > 0 && sector1Time > 0 && sector2Time > 0) {
+                    latestData.sector3Time = latestData.currentLapTime - sector1Time - sector2Time;
                     latestData.sector3TimeStr = formatLapTime(latestData.sector3Time);
                 } else {
+                    latestData.sector3Time = 0;
                     latestData.sector3TimeStr = '--:--.---';
                 }
+                
+                // When lap completes (lastLapTime changes), save the sector times from the PREVIOUS lap
+                if (latestData.lastLapTime > 0 && latestData.lastLapTime !== previousLastLapTime) {
+                    // Use the stored sector times from when the lap was being driven
+                    // Calculate sector 3 from completed lap
+                    if (currentLapSectors.sector1 > 0 && currentLapSectors.sector2 > 0) {
+                        currentLapSectors.sector3 = latestData.lastLapTime - currentLapSectors.sector1 - currentLapSectors.sector2;
+                    }
+                    
+                    // Store completed lap info for database
+                    latestData.completedLapNumber = currentLapNum - 1; // The lap that just finished
+                    latestData.completedSector1 = currentLapSectors.sector1;
+                    latestData.completedSector2 = currentLapSectors.sector2;
+                    latestData.completedSector3 = currentLapSectors.sector3;
+                }
+                
+                // Update current lap sector tracking
+                currentLapSectors.sector1 = sector1Time;
+                currentLapSectors.sector2 = sector2Time;
+                currentLapSectors.lapNumber = currentLapNum;
                 
                 // Lap distance (float at offset 22)
                 latestData.lapDistance = buffer.readFloatLE(offset + 22);
                 
-                // Lap number
-                latestData.lapNumber = buffer.readUInt8(offset + 30);
+                latestData.lapNumber = currentLapNum;
             }
         }
         

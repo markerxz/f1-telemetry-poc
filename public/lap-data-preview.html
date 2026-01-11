@@ -447,12 +447,12 @@
 
             // Last completed lap
             if (data.lastLapTime > 0) {
-                document.getElementById('lastLapNum').textContent = (data.lapNumber - 1) || '--';
+                document.getElementById('lastLapNum').textContent = data.completedLapNumber || (data.lapNumber - 1) || '--';
                 document.getElementById('lastLapTime').textContent = data.lastLapTimeStr || '--:--.---';
                 document.getElementById('lastLapTimeMs').textContent = data.lastLapTime || '--';
-                document.getElementById('lastSector1Ms').textContent = data.sector1Time || '--';
-                document.getElementById('lastSector2Ms').textContent = data.sector2Time || '--';
-                document.getElementById('lastSector3Ms').textContent = data.sector3Time || '--';
+                document.getElementById('lastSector1Ms').textContent = data.completedSector1 || '--';
+                document.getElementById('lastSector2Ms').textContent = data.completedSector2 || '--';
+                document.getElementById('lastSector3Ms').textContent = data.completedSector3 || '--';
 
                 // Update SQL preview
                 updateSQLPreview(data);
@@ -462,12 +462,12 @@
         function captureLap(data) {
             const lap = {
                 id: capturedLaps.length + 1,
-                lapNumber: data.lapNumber - 1,
+                lapNumber: data.completedLapNumber || (data.lapNumber - 1),
                 lapTimeMs: data.lastLapTime,
                 lapTimeFormatted: data.lastLapTimeStr,
-                sector1Ms: data.sector1Time,
-                sector2Ms: data.sector2Time,
-                sector3Ms: data.sector3Time,
+                sector1Ms: data.completedSector1 || 0,
+                sector2Ms: data.completedSector2 || 0,
+                sector3Ms: data.completedSector3 || 0,
                 trackName: data.trackName,
                 sessionType: data.sessionType,
                 timestamp: new Date().toISOString()
@@ -480,8 +480,11 @@
         }
 
         function updateSQLPreview(data) {
-            const lapNum = data.lapNumber - 1;
+            const lapNum = data.completedLapNumber || (data.lapNumber - 1);
             const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
+            const sector1 = data.completedSector1 || 0;
+            const sector2 = data.completedSector2 || 0;
+            const sector3 = data.completedSector3 || 0;
             
             const sql = `<span class="sql-keyword">INSERT INTO</span> F1_LAP_TIMES (
     SESSION_TIMESTAMP,
@@ -501,9 +504,9 @@
     <span class="sql-number">${lapNum}</span>,
     <span class="sql-number">${data.lastLapTime}</span>,
     <span class="sql-string">'${data.lastLapTimeStr}'</span>,
-    <span class="sql-number">${data.sector1Time}</span>,
-    <span class="sql-number">${data.sector2Time}</span>,
-    <span class="sql-number">${data.sector3Time}</span>,
+    <span class="sql-number">${sector1}</span>,
+    <span class="sql-number">${sector2}</span>,
+    <span class="sql-number">${sector3}</span>,
     <span class="sql-number">1</span>
 );`;
 
