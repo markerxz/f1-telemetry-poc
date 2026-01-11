@@ -258,6 +258,7 @@ const server = http.createServer((req, res) => {
             // Set correct content type
             const ext = path.extname(filePath);
             const contentTypes = {
+                '.html': 'text/html; charset=utf-8',
                 '.png': 'image/png',
                 '.jpg': 'image/jpeg',
                 '.svg': 'image/svg+xml',
