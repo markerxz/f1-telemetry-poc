@@ -18,7 +18,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "ws": "^8.14.2"
+    "ws": "^8.14.2",
+    "oracledb": "^6.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

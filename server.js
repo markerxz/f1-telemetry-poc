@@ -11,6 +11,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
+const database = require('./database');
 
 // Configuration
 const UDP_PORT = process.env.UDP_PORT || 20777;
@@ -248,6 +249,23 @@ function parsePacket(buffer) {
                     latestData.completedLapValid = currentLapSectors.isValid;
                     
                     console.log(`[Lap Complete] Lap ${latestData.completedLapNumber}, Time: ${latestData.lastLapTimeStr}, Valid: ${latestData.completedLapValid ? 'YES' : 'NO'}`);
+                    
+                    // Save to database
+                    database.saveLapTime({
+                        sessionId: latestData.sessionId,
+                        driverName: latestData.driverName,
+                        trackName: latestData.trackName,
+                        sessionType: latestData.sessionType,
+                        lapNumber: latestData.completedLapNumber,
+                        lapTimeMs: latestData.lastLapTime,
+                        lapTimeFormatted: latestData.lastLapTimeStr,
+                        sector1Ms: latestData.completedSector1,
+                        sector2Ms: latestData.completedSector2,
+                        sector3Ms: latestData.completedSector3,
+                        isValid: latestData.completedLapValid
+                    }).catch(err => {
+                        console.error('[Database] Error saving lap:', err);
+                    });
                 }
                 
                 // Always keep completed lap data available (for display)
@@ -315,6 +333,25 @@ const server = http.createServer((req, res) => {
             sector3: formatLapTime(singaporeBestLap.sector3 === Infinity ? 0 : singaporeBestLap.sector3),
             timestamp: singaporeBestLap.timestamp
         }));
+    } else if (req.url === '/api/laps/recent') {
+        // Get recent laps from database
+        database.getRecentLaps(50).then(laps => {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(laps));
+        }).catch(err => {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Failed to fetch laps' }));
+        });
+    } else if (req.url.startsWith('/api/laps/session/')) {
+        // Get laps by session ID
+        const sessionId = req.url.split('/').pop();
+        database.getLapsBySession(sessionId).then(laps => {
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify(laps));
+        }).catch(err => {
+            res.writeHead(500, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({ error: 'Failed to fetch laps' }));
+        });
     } else {
         // Serve static files from public folder
         const filePath = path.join(__dirname, 'public', req.url);
@@ -401,6 +438,15 @@ udpServer.on('listening', () => {
     console.log('');
 });
 
+// Initialize database
+database.initialize().then(success => {
+    if (success) {
+        console.log('[Server] Database integration enabled');
+    } else {
+        console.log('[Server] Running in preview mode (no database)');
+    }
+});
+
 udpServer.bind(UDP_PORT, HOST);
 server.listen(HTTP_PORT, HOST);
 
@@ -414,10 +460,11 @@ setInterval(() => {
     }
 }, 100);
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
     console.log('\n[Shutdown]');
+    await database.close();
     udpServer.close();
-  server.close();
-  process.exit(0);
+    server.close();
+    process.exit(0);
 });
 
