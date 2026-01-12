@@ -40,12 +40,13 @@ async function initialize() {
         // Initialize Oracle Client in Thick mode (required for Cloud wallet)
         if (!oracleClientInitialized) {
             try {
+                // Don't specify libDir - let it use system-installed Instant Client
                 oracledb.initOracleClient({
-                    libDir: process.env.LD_LIBRARY_PATH ? process.env.LD_LIBRARY_PATH.split(':')[0] : undefined,
                     configDir: dbConfig.walletLocation
                 });
                 oracleClientInitialized = true;
                 console.log('[Database] Oracle Client initialized in Thick mode');
+                console.log(`[Database] Using wallet from: ${dbConfig.walletLocation}`);
             } catch (err) {
                 if (!err.message.includes('already been initialized')) {
                     throw err;
