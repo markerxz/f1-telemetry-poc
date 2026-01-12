@@ -17,7 +17,7 @@ const dbConfig = {
     password: process.env.DB_PASSWORD || 'Mamarkrknstdaoracle4411!',
     // Use full connection string for thin mode (no wallet needed!)
     connectString: process.env.DB_CONNECT_STRING || '(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-singapore-1.oraclecloud.com))(connect_data=(service_name=g4eb1ecbb989e2a_f1test_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))',
-    walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1_adb_oci'
+    walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1test_wallet'
 };
 
 // Connection pool
@@ -38,11 +38,12 @@ async function initialize() {
         console.log('[Database] Using THIN mode (no wallet required)');
         console.log(`[Database] Connecting to: adb.ap-osaka-1.oraclecloud.com`);
         
-        // Create connection pool without initOracleClient - use thin mode
+        // Create connection pool with wallet location (thin mode with wallet)
         pool = await oracledb.createPool({
             user: dbConfig.user,
             password: dbConfig.password,
             connectString: dbConfig.connectString,
+            walletLocation: dbConfig.walletLocation,
             poolMin: 1,
             poolMax: 5,
             poolIncrement: 1
