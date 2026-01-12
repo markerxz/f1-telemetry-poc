@@ -38,12 +38,17 @@ async function initialize() {
         console.log('[Database] Using THIN mode (no wallet required)');
         console.log(`[Database] Connecting to: adb.ap-osaka-1.oraclecloud.com`);
         
-        // Create connection pool with wallet location (thin mode with wallet)
+        // Set TNS_ADMIN for wallet (needed for TNS aliases)
+        process.env.TNS_ADMIN = dbConfig.walletLocation;
+        
+        // Use TNS alias instead of full connection string (works with wallet)
+        const tnsAlias = 'f1test_tpurgent';
+        
+        // Create connection pool using TNS alias (thin mode)
         pool = await oracledb.createPool({
             user: dbConfig.user,
             password: dbConfig.password,
-            connectString: dbConfig.connectString,
-            walletLocation: dbConfig.walletLocation,
+            connectString: tnsAlias,  // Use TNS alias instead of full connection string
             poolMin: 1,
             poolMax: 5,
             poolIncrement: 1
