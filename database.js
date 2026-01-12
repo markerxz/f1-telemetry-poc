@@ -170,7 +170,7 @@ async function getRecentLaps(limit = 50) {
             SECTOR3_MS,
             IS_VALID,
             CREATED_AT
-        FROM ADMIN.F1_LAP_TIMES
+        FROM F1_LAP_TIMES
         ORDER BY CREATED_AT DESC
         FETCH FIRST :limit ROWS ONLY`;
         
@@ -217,7 +217,7 @@ async function getLapsBySession(sessionId) {
             SECTOR3_MS,
             IS_VALID,
             CREATED_AT
-        FROM ADMIN.F1_LAP_TIMES
+        FROM F1_LAP_TIMES
         WHERE SESSION_ID = :sessionId
         ORDER BY LAP_NUMBER ASC`;
         
