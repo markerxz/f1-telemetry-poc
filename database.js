@@ -3,7 +3,13 @@
  * Handles database connections and lap time storage
  */
 
-const oracledb = require('oracledb');
+let oracledb;
+try {
+    oracledb = require('oracledb');
+} catch (err) {
+    console.log('[Database] oracledb module not available - running in preview mode');
+    oracledb = null;
+}
 
 // Database configuration
 const dbConfig = {
@@ -24,6 +30,11 @@ let pool = null;
  * Initialize database connection pool
  */
 async function initialize() {
+    if (!oracledb) {
+        console.log('[Database] Running in preview mode (oracledb not installed)');
+        return false;
+    }
+    
     try {
         console.log('[Database] Initializing connection pool...');
         console.log(`[Database] Wallet location: ${dbConfig.walletLocation}`);
