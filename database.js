@@ -15,17 +15,17 @@ try {
 const dbConfig = {
     user: process.env.DB_USER || 'ADMIN',
     password: process.env.DB_PASSWORD || 'ppPPPP__253fSEDF8675__3fcdvbj',
-    connectString: process.env.DB_CONNECT_STRING || 'adbforailowercost_tpurgent',
-    walletLocation: process.env.WALLET_LOCATION || 'C:\\Users\\Mark\\.oracle\\wallets\\f1_adb_oci',
-    walletPassword: process.env.WALLET_PASSWORD || ''
+    // Use full connection string for thin mode (no wallet needed!)
+    connectString: process.env.DB_CONNECT_STRING || '(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-osaka-1.oraclecloud.com))(connect_data=(service_name=gf196601a13c93b_adbforailowercost_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))',
+    walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1_adb_oci'
 };
 
 // Connection pool
 let pool = null;
-let oracleClientInitialized = false;
 
 /**
  * Initialize database connection pool
+ * Using THIN mode with full connection string (no wallet/thick mode needed!)
  */
 async function initialize() {
     if (!oracledb) {
@@ -34,29 +34,11 @@ async function initialize() {
     }
     
     try {
-        // Set TNS_ADMIN environment variable for wallet location
-        // This must be set BEFORE calling initOracleClient()
-        process.env.TNS_ADMIN = dbConfig.walletLocation;
-        console.log(`[Database] TNS_ADMIN set to: ${process.env.TNS_ADMIN}`);
-        
-        // Initialize Oracle Client in Thick mode (required for Cloud wallet)
-        if (!oracleClientInitialized) {
-            try {
-                // Initialize without parameters - use environment variables and system paths
-                oracledb.initOracleClient();
-                oracleClientInitialized = true;
-                console.log('[Database] ✓ Oracle Client initialized in Thick mode');
-            } catch (err) {
-                if (!err.message.includes('already been initialized')) {
-                    throw err;
-                }
-                console.log('[Database] Oracle Client already initialized');
-            }
-        }
-        
         console.log('[Database] Initializing connection pool...');
-        console.log(`[Database] Wallet location: ${dbConfig.walletLocation}`);
+        console.log('[Database] Using THIN mode (no wallet required)');
+        console.log(`[Database] Connecting to: adb.ap-osaka-1.oraclecloud.com`);
         
+        // Create connection pool without initOracleClient - use thin mode
         pool = await oracledb.createPool({
             user: dbConfig.user,
             password: dbConfig.password,
@@ -70,10 +52,10 @@ async function initialize() {
         
         // Test connection
         const connection = await pool.getConnection();
-        const result = await connection.execute('SELECT 1 FROM DUAL');
+        const result = await connection.execute('SELECT 1 AS TEST FROM DUAL');
         await connection.close();
         
-        console.log('[Database] ✓ Test query successful');
+        console.log('[Database] ✓ Test query successful:', result.rows[0]);
         return true;
     } catch (err) {
         console.error('[Database] ✗ Failed to initialize:', err.message);
