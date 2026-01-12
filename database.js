@@ -9,7 +9,7 @@ const oracledb = require('oracledb');
 const dbConfig = {
     user: process.env.DB_USER || 'ADMIN',
     password: process.env.DB_PASSWORD || 'ppPPPP__253fSEDF8675__3fcdvbj',
-    connectString: process.env.DB_CONNECT_STRING || 'adbforailowercost_high',
+    connectString: process.env.DB_CONNECT_STRING || 'adbforailowercost_tpurgent',
     walletLocation: process.env.WALLET_LOCATION || 'C:\\Users\\Mark\\.oracle\\wallets\\f1_adb_oci',
     walletPassword: process.env.WALLET_PASSWORD || ''
 };
