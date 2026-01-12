@@ -10,7 +10,8 @@ module.exports = {
       DB_USER: 'ADMIN',
       DB_PASSWORD: 'ppPPPP__253fSEDF8675__3fcdvbj',
       DB_CONNECT_STRING: 'adbforailowercost_tpurgent',
-      NODE_ENV: 'production'
+      NODE_ENV: 'production',
+      MODULES_RUN_QUARANTINE: ''
     }
   }]
 };
