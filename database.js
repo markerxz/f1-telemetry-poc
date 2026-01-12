@@ -25,6 +25,7 @@ process.env.TNS_ADMIN = dbConfig.walletLocation;
 
 // Connection pool
 let pool = null;
+let oracleClientInitialized = false;
 
 /**
  * Initialize database connection pool
@@ -36,6 +37,23 @@ async function initialize() {
     }
     
     try {
+        // Initialize Oracle Client in Thick mode (required for Cloud wallet)
+        if (!oracleClientInitialized) {
+            try {
+                oracledb.initOracleClient({
+                    libDir: process.env.LD_LIBRARY_PATH ? process.env.LD_LIBRARY_PATH.split(':')[0] : undefined,
+                    configDir: dbConfig.walletLocation
+                });
+                oracleClientInitialized = true;
+                console.log('[Database] Oracle Client initialized in Thick mode');
+            } catch (err) {
+                if (!err.message.includes('already been initialized')) {
+                    throw err;
+                }
+                console.log('[Database] Oracle Client already initialized');
+            }
+        }
+        
         console.log('[Database] Initializing connection pool...');
         console.log(`[Database] Wallet location: ${dbConfig.walletLocation}`);
         
