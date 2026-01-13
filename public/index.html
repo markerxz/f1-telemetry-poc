@@ -70,7 +70,6 @@
                 <div class="lap-section">
                     <div class="lap-label">CURRENT LAP</div>
                     <div class="lap-time" id="currentLap">0:00.000</div>
-                    <div class="lap-delta" id="lapDelta">--</div>
                 </div>
             </div>
 
@@ -145,13 +144,7 @@
                 </div>
             </div>
 
-            <div class="data-box" style="flex: 1;">
-                <div class="data-title">📋 LAP HISTORY</div>
-                <div class="lap-history" id="lapHistory">
-                    <div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet
-                    </div>
-                </div>
-            </div>
+
 
             <div class="data-box">
                 <div class="data-title">🌡️ TEMPERATURES</div>
@@ -437,25 +430,7 @@
             carPos.style.top = y + 'px';
         }
 
-        function updateLapHistory() {
-            const historyEl = document.getElementById('lapHistory');
-            if (lapHistory.length === 0) {
-                historyEl.innerHTML = '<div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet</div>';
-                return;
-            }
 
-            historyEl.innerHTML = lapHistory.map((lap, index) => {
-                const delta = lap.delta !== null ? (lap.delta >= 0 ? `+${lap.delta.toFixed(3)}` : lap.delta.toFixed(3)) : '';
-                const isBest = lap.isBest ? ' best' : '';
-                return `
-                    <div class="lap-history-item${isBest}">
-                        <span class="lap-number">Lap ${lap.lapNum}</span>
-                        <span class="lap-time">${lap.timeStr}</span>
-                        <span class="lap-delta" style="color: ${lap.delta < 0 ? '#00ff00' : '#ff0000'}">${delta}</span>
-                    </div>
-                `;
-            }).join('');
-        }
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -542,7 +517,7 @@
                     });
                 }
 
-                updateLapHistory();
+                // updateLapHistory(); // Removed
             }
 
             // Update best sectors
@@ -568,27 +543,7 @@
             document.getElementById('sector2Best').textContent = bestSector2 ? formatTime(bestSector2) : '--:--.---';
             document.getElementById('sector3Best').textContent = bestSector3 ? formatTime(bestSector3) : '--:--.---';
 
-            // Delta to best lap
-            if (bestLapTime && data.currentLapTime > 0) {
-                const deltaMs = data.currentLapTime - bestLapTime;
-                const deltaSec = deltaMs / 1000;
-                const deltaEl = document.getElementById('lapDelta');
 
-                if (Math.abs(deltaSec) < 0.001) {
-                    deltaEl.textContent = '0.000';
-                    deltaEl.className = 'lap-delta';
-                } else if (deltaSec < 0) {
-                    deltaEl.textContent = deltaSec.toFixed(3);
-                    deltaEl.className = 'lap-delta faster';
-                } else {
-                    deltaEl.textContent = '+' + deltaSec.toFixed(3);
-                    deltaEl.className = 'lap-delta slower';
-                }
-            } else {
-                const deltaEl = document.getElementById('lapDelta');
-                deltaEl.textContent = '--';
-                deltaEl.className = 'lap-delta';
-            }
 
             // Temperatures
             document.getElementById('engineTemp').textContent = (data.engineTemp || 0) + '°C';
