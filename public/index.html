@@ -227,7 +227,7 @@
         // Initialize driver name and session name inputs
         document.getElementById('driverName').value = driverName;
         document.getElementById('sessionName').value = sessionName;
-        document.getElementById('sessionIdDisplay').textContent = 'Session: ' + sessionId.substr(0, 20) + '...';
+        // Removed sessionIdDisplay - element doesn't exist
 
         // Send data to server
         function sendDriverInfo() {
@@ -470,7 +470,7 @@
             }
 
             // Update displays
-            document.getElementById('lapNumber').textContent = data.lapNumber || 0;
+            // Removed lapNumber - element doesn't exist
             document.getElementById('speed').textContent = data.speed || 0;
 
             // Gear
