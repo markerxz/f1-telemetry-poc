@@ -13,6 +13,40 @@ const path = require('path');
 const WebSocket = require('ws');
 const database = require('./database');
 
+// Backup lap storage file
+const LAP_BACKUP_FILE = path.join(__dirname, 'laps_backup.json');
+
+// Load backup laps from file
+let backupLaps = [];
+(async () => {
+    try {
+        const data = await fs.promises.readFile(LAP_BACKUP_FILE, 'utf8');
+        backupLaps = JSON.parse(data);
+        console.log(`[Backup] Loaded ${backupLaps.length} laps from backup file`);
+    } catch (err) {
+        backupLaps = [];
+    }
+})();
+
+// Save lap to backup file
+async function saveToBackup(lapData) {
+    try {
+        backupLaps.unshift({
+            ...lapData,
+            CREATED_AT: new Date().toISOString(),
+            LAP_ID: Date.now()
+        });
+        // Keep only last 500 laps
+        if (backupLaps.length > 500) {
+            backupLaps = backupLaps.slice(0, 500);
+        }
+        await fs.promises.writeFile(LAP_BACKUP_FILE, JSON.stringify(backupLaps, null, 2));
+        console.log(`[Backup] ✓ Saved lap to backup file (${backupLaps.length} total)`);
+    } catch (err) {
+        console.error('[Backup] Error saving to backup file:', err.message);
+    }
+}
+
 // Configuration
 const UDP_PORT = process.env.UDP_PORT || 20777;
 const HTTP_PORT = process.env.HTTP_PORT || 3000;

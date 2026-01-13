@@ -14,10 +14,10 @@ try {
 // Database configuration
 const dbConfig = {
     user: process.env.DB_USER || 'ADMIN',
-    password: process.env.DB_PASSWORD || 'Mamarkrknstdaoracle4411!',
-    // Use full connection string for thin mode (no wallet needed!)
-    connectString: process.env.DB_CONNECT_STRING || '(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-singapore-1.oraclecloud.com))(connect_data=(service_name=g4eb1ecbb989e2a_f1test_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))',
-    walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1test_wallet'
+    password: process.env.DB_PASSWORD || 'Mamarkrknstda4411!',
+    // AIS Cloud Thailand - f1data database
+    connectString: process.env.DB_CONNECT_STRING || '(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-pathumthani-1.thaiaiscloud.com))(connect_data=(service_name=g2936204eb60dba_f1data_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))',
+    walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1data_wallet'
 };
 
 // Connection pool
@@ -35,14 +35,14 @@ async function initialize() {
     
     try {
         console.log('[Database] Initializing connection pool...');
-        console.log('[Database] Using THIN mode (no wallet required)');
-        console.log(`[Database] Connecting to: adb.ap-osaka-1.oraclecloud.com`);
+        console.log('[Database] Using THIN mode with TLS');
+        console.log(`[Database] Connecting to: adb.ap-pathumthani-1.thaiaiscloud.com (AIS Cloud Thailand)`);
         
         // Set TNS_ADMIN for wallet (needed for TNS aliases)
         process.env.TNS_ADMIN = dbConfig.walletLocation;
         
         // Use TNS alias instead of full connection string (works with wallet)
-        const tnsAlias = 'f1test_tpurgent';
+        const tnsAlias = 'f1data_tpurgent';
         
         // Create connection pool using TNS alias (thin mode)
         pool = await oracledb.createPool({
