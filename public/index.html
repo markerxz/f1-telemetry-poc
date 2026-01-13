@@ -18,17 +18,10 @@
         </div>
         <div class="track-info">
             <div class="track-name" id="trackName">SINGAPORE GRAND PRIX - TIME TRIAL</div>
-            <div class="session-info">
-                <div>LAP <span id="lapNumber">0</span></div>
-            </div>
         </div>
         <div class="driver-input-container">
-            <label class="driver-input-label" for="driverName">Driver Name</label>
-            <input type="text" id="driverName" class="driver-input" placeholder="Enter your name" maxlength="50">
-            <label class="driver-input-label" for="sessionName" style="margin-top: 10px;">Session Name</label>
-            <input type="text" id="sessionName" class="driver-input" placeholder="e.g. Practice, Qualifying, Race"
-                maxlength="50">
-            <div class="session-id-display" id="sessionIdDisplay">Session: --</div>
+            <input type="text" id="driverName" class="driver-input" placeholder="Driver Name" maxlength="50">
+            <input type="text" id="sessionName" class="driver-input" placeholder="Session Name" maxlength="50">
         </div>
         <div class="live-indicator">
             <span>LIVE</span>
@@ -157,14 +150,6 @@
                 <div class="lap-history" id="lapHistory">
                     <div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet
                     </div>
-                </div>
-            </div>
-
-            <div class="data-box" style="flex: 1.2;">
-                <div class="data-title">🗺️ TRACK POSITION</div>
-                <div class="track-map-container">
-                    <img src="Singapore_street_circuit_v2.svg" alt="Singapore Circuit" class="track-map" id="trackMap">
-                    <div class="car-position" id="carPosition"></div>
                 </div>
             </div>
 
