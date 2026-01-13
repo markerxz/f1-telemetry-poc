@@ -117,26 +117,38 @@ body {
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.6; transform: scale(0.9); }
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
 }
 
-/* Main Layout - Responsive Grid */
+/* Main Layout - Responsive Grid - FIXED */
 .main-container {
     display: grid;
     grid-template-columns: 0.9fr 1.4fr 0.9fr;
-    height: calc(100vh - 100px);
-    gap: 10px;
-    padding: 10px;
+    height: calc(100vh - 90px);
+    gap: 8px;
+    padding: 8px;
     overflow: hidden;
 }
 
-/* Columns */
-.left-column, .center-column, .right-column {
+/* Columns - FIXED OVERFLOW */
+.left-column,
+.center-column,
+.right-column {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 8px;
     overflow: hidden;
+    min-height: 0;
 }
 
 /* Chart Boxes - Compact */
@@ -144,9 +156,10 @@ body {
     background: #0f0f0f;
     border: 2px solid #1a1a1a;
     border-radius: 10px;
-    padding: 12px;
+    padding: 10px;
     flex: 1;
     overflow: hidden;
+    min-height: 0;
 }
 
 .chart-title {
@@ -173,7 +186,8 @@ body {
     gap: 10px;
 }
 
-.speed-label, .lap-label {
+.speed-label,
+.lap-label {
     font-size: clamp(10px, 1vw, 14px);
     color: #666;
     margin-bottom: 5px;
@@ -207,8 +221,13 @@ body {
     margin-top: 8px;
 }
 
-.lap-delta.faster { color: #00ff00; }
-.lap-delta.slower { color: #ff0000; }
+.lap-delta.faster {
+    color: #00ff00;
+}
+
+.lap-delta.slower {
+    color: #ff0000;
+}
 
 /* Gear/RPM Box - Compact */
 .gear-rpm-box {
@@ -217,14 +236,16 @@ body {
     gap: 10px;
 }
 
-.gear-box, .rpm-box {
+.gear-box,
+.rpm-box {
     background: #0f0f0f;
     border: 2px solid #1a1a1a;
     border-radius: 10px;
     padding: 15px;
 }
 
-.gear-label, .rpm-label {
+.gear-label,
+.rpm-label {
     font-size: clamp(10px, 1vw, 14px);
     color: #666;
     margin-bottom: 8px;
@@ -246,8 +267,15 @@ body {
     font-weight: bold;
 }
 
-.drs-on { background: #00ff00; color: #000; }
-.drs-off { background: #333; color: #666; }
+.drs-on {
+    background: #00ff00;
+    color: #000;
+}
+
+.drs-off {
+    background: #333;
+    color: #666;
+}
 
 .rpm-bar {
     position: relative;
@@ -289,7 +317,8 @@ body {
     text-align: center;
 }
 
-.steering-label, .pedal-label {
+.steering-label,
+.pedal-label {
     font-size: clamp(9px, 0.9vw, 12px);
     color: #666;
     margin-bottom: 5px;
@@ -348,8 +377,13 @@ body {
     transition: height 0.1s;
 }
 
-.throttle-fill { background: #00ff00; }
-.brake-fill { background: #ff0000; }
+.throttle-fill {
+    background: #00ff00;
+}
+
+.brake-fill {
+    background: #ff0000;
+}
 
 .pedal-value {
     font-size: clamp(11px, 1.1vw, 15px);
@@ -358,12 +392,14 @@ body {
     text-align: center;
 }
 
-/* Data Boxes - Compact */
+/* Data Boxes - Compact - FIXED */
 .data-box {
     background: #0f0f0f;
     border: 2px solid #1a1a1a;
     border-radius: 10px;
-    padding: 12px;
+    padding: 10px;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .data-title {
@@ -383,28 +419,36 @@ body {
 
 .sector-item {
     background: #1a1a1a;
-    padding: 10px;
-    border-radius: 8px;
+    padding: 6px;
+    border-radius: 6px;
     text-align: center;
+    overflow: hidden;
 }
 
 .sector-label {
-    font-size: clamp(8px, 0.8vw, 11px);
+    font-size: clamp(7px, 0.65vw, 9px);
     color: #666;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
+    white-space: nowrap;
 }
 
 .sector-value {
-    font-size: clamp(14px, 1.5vw, 22px);
+    font-size: clamp(10px, 1vw, 14px);
     font-weight: bold;
     color: #a4d233;
     font-family: 'Courier New', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .sector-best {
-    font-size: clamp(10px, 1vw, 14px);
+    font-size: clamp(8px, 0.75vw, 10px);
     color: #888;
-    margin-top: 3px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Lap History - Compact */
