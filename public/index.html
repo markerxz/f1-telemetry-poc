@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +13,8 @@
             box-sizing: border-box;
         }
 
-        html, body {
+        html,
+        body {
             font-family: 'Segoe UI', 'Arial', sans-serif;
             background: #000;
             color: #fff;
@@ -73,7 +75,7 @@
             background: #00ff00;
             border-radius: 50%;
             animation: pulse 2s infinite;
-            box-shadow: 0 0 20px rgba(0,255,0,0.8);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
         }
 
         .driver-input-container {
@@ -120,8 +122,17 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.9); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.6;
+                transform: scale(0.9);
+            }
         }
 
         /* Main Layout - 3 columns */
@@ -623,8 +634,15 @@
         }
 
         @keyframes carPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
         }
 
         .telemetry-grid {
@@ -718,6 +736,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Top Bar -->
     <div class="top-bar">
@@ -733,13 +752,10 @@
         </div>
         <div class="driver-input-container">
             <label class="driver-input-label" for="driverName">Driver Name</label>
-            <input 
-                type="text" 
-                id="driverName" 
-                class="driver-input" 
-                placeholder="Enter your name"
-                maxlength="50"
-            >
+            <input type="text" id="driverName" class="driver-input" placeholder="Enter your name" maxlength="50">
+            <label class="driver-input-label" for="sessionName" style="margin-top: 10px;">Session Name</label>
+            <input type="text" id="sessionName" class="driver-input" placeholder="e.g. Practice, Qualifying, Race"
+                maxlength="50">
             <div class="session-id-display" id="sessionIdDisplay">Session: --</div>
         </div>
         <div class="live-indicator">
@@ -792,7 +808,7 @@
                     <div class="lap-delta" id="lapDelta">--</div>
                 </div>
             </div>
-            
+
             <div class="gear-rpm-box">
                 <div class="gear-box">
                     <div class="gear-label">GEAR</div>
@@ -859,14 +875,16 @@
                 </div>
                 <div style="margin-top: 20px; text-align: center;">
                     <div style="color: #666; font-size: 1.4em; margin-bottom: 8px;">BEST LAP</div>
-                    <div style="font-size: 3em; font-weight: bold; color: #c8e66f; font-family: 'Courier New', monospace; text-shadow: 0 0 20px rgba(200, 230, 111, 0.6);" id="bestLap">--:--.---</div>
+                    <div style="font-size: 3em; font-weight: bold; color: #c8e66f; font-family: 'Courier New', monospace; text-shadow: 0 0 20px rgba(200, 230, 111, 0.6);"
+                        id="bestLap">--:--.---</div>
                 </div>
             </div>
 
             <div class="data-box" style="flex: 1;">
                 <div class="data-title">📋 LAP HISTORY</div>
                 <div class="lap-history" id="lapHistory">
-                    <div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet</div>
+                    <div style="text-align: center; color: #666; padding: 20px; font-size: 1.4em;">No laps completed yet
+                    </div>
                 </div>
             </div>
 
@@ -921,7 +939,7 @@
 
     <script>
         const ws = new WebSocket('ws://' + window.location.host);
-        
+
         const maxDataPoints = 150; // 30 seconds at 60Hz
         const timeLabels = [];
         const speedData = [];
@@ -942,39 +960,49 @@
         // Session and driver tracking
         let sessionId = generateSessionId();
         let driverName = localStorage.getItem('f1_driver_name') || '';
-        
+        let sessionName = localStorage.getItem('f1_session_name') || '';
+
         // Generate a unique session ID
         function generateSessionId() {
             return 'SESSION_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
-        
-        // Initialize driver name input
+
+        // Initialize driver name and session name inputs
         document.getElementById('driverName').value = driverName;
+        document.getElementById('sessionName').value = sessionName;
         document.getElementById('sessionIdDisplay').textContent = 'Session: ' + sessionId.substr(0, 20) + '...';
-        
-        // Save driver name and send to server
-        document.getElementById('driverName').addEventListener('change', function() {
-            driverName = this.value.trim();
-            localStorage.setItem('f1_driver_name', driverName);
-            
-            // Send driver name to server
+
+        // Send data to server
+        function sendDriverInfo() {
             if (ws.readyState === WebSocket.OPEN) {
                 ws.send(JSON.stringify({
                     type: 'setDriver',
-                    driverName: driverName,
+                    driverName: driverName || 'Unknown',
+                    sessionName: sessionName || 'Unknown',
                     sessionId: sessionId
                 }));
+                console.log('Sent driver info:', { driverName, sessionName, sessionId });
             }
+        }
+
+        // Save driver name and send to server
+        document.getElementById('driverName').addEventListener('change', function () {
+            driverName = this.value.trim();
+            localStorage.setItem('f1_driver_name', driverName);
+            sendDriverInfo();
         });
-        
+
+        // Save session name and send to server
+        document.getElementById('sessionName').addEventListener('change', function () {
+            sessionName = this.value.trim();
+            localStorage.setItem('f1_session_name', sessionName);
+            sendDriverInfo();
+        });
+
         // Send driver info when connection opens
         ws.onopen = () => {
             console.log('WebSocket connected');
-            ws.send(JSON.stringify({
-                type: 'setDriver',
-                driverName: driverName,
-                sessionId: sessionId
-            }));
+            sendDriverInfo();
         };
 
         // Chart.js default configuration
@@ -1003,9 +1031,9 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        display: true, 
-                        min: 0, 
+                    y: {
+                        display: true,
+                        min: 0,
                         max: 400,
                         grid: { color: '#222' },
                         ticks: { color: '#666', font: { size: 10 } },
@@ -1038,9 +1066,9 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        display: true, 
-                        min: 0, 
+                    y: {
+                        display: true,
+                        min: 0,
                         max: 100,
                         grid: { color: '#222' },
                         ticks: { color: '#666', font: { size: 10 } },
@@ -1073,9 +1101,9 @@
                 animation: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { 
-                        display: true, 
-                        min: 0, 
+                    y: {
+                        display: true,
+                        min: 0,
                         max: 100,
                         grid: { color: '#222' },
                         ticks: { color: '#666', font: { size: 10 } },
@@ -1103,12 +1131,12 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: false,
-                plugins: { 
+                plugins: {
                     legend: { display: false },
                     tooltip: { enabled: false }
                 },
                 scales: {
-                    x: { 
+                    x: {
                         display: true,
                         min: -5,
                         max: 5,
@@ -1116,7 +1144,7 @@
                         ticks: { color: '#666', font: { size: 10 } },
                         title: { display: true, text: 'Lateral G', color: '#a4d233', font: { size: 12 } }
                     },
-                    y: { 
+                    y: {
                         display: true,
                         min: -5,
                         max: 5,
@@ -1130,24 +1158,24 @@
 
         function updateTrackPosition(lapDistance) {
             if (!trackLength || lapDistance === undefined) return;
-            
+
             const progress = (lapDistance / trackLength) % 1; // Ensure 0-1 range
             const carPos = document.getElementById('carPosition');
             const container = carPos.parentElement;
-            
+
             // Use container dimensions directly (not getBoundingClientRect which can change)
             const width = container.offsetWidth;
             const height = container.offsetHeight;
-            
+
             // Circular approximation - start at top, go clockwise
             const centerX = width / 2;
             const centerY = height / 2;
             const radius = Math.min(width, height) * 0.35;
-            
+
             const angle = progress * 2 * Math.PI - Math.PI / 2; // Start at top (12 o'clock)
             const x = centerX + radius * Math.cos(angle);
             const y = centerY + radius * Math.sin(angle);
-            
+
             carPos.style.left = x + 'px';
             carPos.style.top = y + 'px';
         }
@@ -1175,26 +1203,26 @@
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
             packetCount++;
-            
+
             // Update packet counter
             document.getElementById('packetCount').textContent = packetCount.toLocaleString();
-            
+
             // Update track length if available
             if (data.trackLength) {
                 trackLength = data.trackLength;
             }
-            
+
             // Update displays
             document.getElementById('lapNumber').textContent = data.lapNumber || 0;
             document.getElementById('speed').textContent = data.speed || 0;
-            
+
             // Gear
             const gear = data.gear;
             let gearText = 'N';
             if (gear === -1) gearText = 'R';
             else if (gear > 0) gearText = gear;
             document.getElementById('gear').textContent = gearText;
-            
+
             // DRS
             const drsIndicator = document.getElementById('drsIndicator');
             if (data.drs === 1) {
@@ -1204,43 +1232,43 @@
                 drsIndicator.textContent = 'DRS OFF';
                 drsIndicator.className = 'drs-indicator drs-off';
             }
-            
+
             // RPM
             const rpmPercent = Math.min(((data.rpm || 0) / 15000) * 100, 100);
             document.getElementById('rpmFill').style.width = rpmPercent + '%';
             document.getElementById('rpmText').textContent = (data.rpm || 0).toLocaleString();
-            
+
             // Steering
             const steeringDegrees = (data.steering || 0) * 450;
             document.getElementById('steeringWheel').style.transform = `rotate(${steeringDegrees}deg)`;
             document.getElementById('steeringValue').textContent = steeringDegrees.toFixed(1) + '°';
-            
+
             // Pedals
             document.getElementById('throttleFill').style.height = (data.throttle || 0) + '%';
             document.getElementById('throttleValue').textContent = data.throttle || 0;
             document.getElementById('brakeFill').style.height = (data.brake || 0) + '%';
             document.getElementById('brakeValue').textContent = data.brake || 0;
-            
+
             // Lap times
             document.getElementById('currentLap').textContent = data.currentLapTimeStr || '0:00.000';
             document.getElementById('sector1').textContent = data.sector1TimeStr || '--:--.---';
             document.getElementById('sector2').textContent = data.sector2TimeStr || '--:--.---';
             document.getElementById('sector3').textContent = data.sector3TimeStr || '--:--.---';
-            
+
             // Update lap history - add EVERY completed lap
             if (data.lastLapTime && data.lastLapTime > 0 && data.lastLapTime !== lastRecordedLapTime) {
                 lastRecordedLapTime = data.lastLapTime;
-                
+
                 // Calculate delta to previous lap
-                const delta = lapHistory.length > 0 ? 
+                const delta = lapHistory.length > 0 ?
                     (data.lastLapTime - lapHistory[lapHistory.length - 1].time) / 1000 : null;
-                
+
                 // Check if this is the best lap
                 const isNewBest = !bestLapTime || data.lastLapTime < bestLapTime;
                 if (isNewBest) {
                     bestLapTime = data.lastLapTime;
                 }
-                
+
                 // Add lap to history
                 lapHistory.push({
                     lapNum: lapHistory.length + 1,
@@ -1249,17 +1277,17 @@
                     delta: delta,
                     isBest: isNewBest
                 });
-                
+
                 // Mark all others as not best if this is the new best
                 if (isNewBest) {
                     lapHistory.forEach((lap, i) => {
                         if (i < lapHistory.length - 1) lap.isBest = false;
                     });
                 }
-                
+
                 updateLapHistory();
             }
-            
+
             // Update best sectors
             if (data.sector1Time && data.sector1Time > 0) {
                 if (!bestSector1 || data.sector1Time < bestSector1) {
@@ -1276,13 +1304,13 @@
                     bestSector3 = data.sector3Time;
                 }
             }
-            
+
             // Display best lap and sectors
             document.getElementById('bestLap').textContent = bestLapTime ? formatTime(bestLapTime) : '--:--.---';
             document.getElementById('sector1Best').textContent = bestSector1 ? formatTime(bestSector1) : '--:--.---';
             document.getElementById('sector2Best').textContent = bestSector2 ? formatTime(bestSector2) : '--:--.---';
             document.getElementById('sector3Best').textContent = bestSector3 ? formatTime(bestSector3) : '--:--.---';
-            
+
             // Delta to best lap
             if (bestLapTime && data.currentLapTime > 0) {
                 const delta = (data.currentLapTime - bestLapTime) / 1000;
@@ -1295,22 +1323,22 @@
                     deltaEl.className = 'lap-delta slower';
                 }
             }
-            
+
             // Temperatures
             document.getElementById('engineTemp').textContent = (data.engineTemp || 0) + '°C';
-            const brakeAvg = data.brakeFL && data.brakeFR && data.brakeRL && data.brakeRR ? 
+            const brakeAvg = data.brakeFL && data.brakeFR && data.brakeRL && data.brakeRR ?
                 Math.round((data.brakeFL + data.brakeFR + data.brakeRL + data.brakeRR) / 4) : 0;
             document.getElementById('brakeAvg').textContent = brakeAvg + '°C';
             document.getElementById('tyreFL').textContent = (data.tyreFL || 0) + '°C';
             document.getElementById('tyreFR').textContent = (data.tyreFR || 0) + '°C';
             document.getElementById('tyreRL').textContent = (data.tyreRL || 0) + '°C';
             document.getElementById('tyreRR').textContent = (data.tyreRR || 0) + '°C';
-            
+
             // Track position
             if (data.lapDistance !== undefined) {
                 updateTrackPosition(data.lapDistance);
             }
-            
+
             // Update charts
             if (timeLabels.length >= maxDataPoints) {
                 timeLabels.shift();
@@ -1320,12 +1348,12 @@
                 gforceLateralData.shift();
                 gforceLongitudinalData.shift();
             }
-            
+
             timeLabels.push('');
             speedData.push(data.speed || 0);
             throttleData.push(data.throttle || 0);
             brakeData.push(data.brake || 0);
-            
+
             // G-Force scatter plot (X = Lateral, Y = Longitudinal)
             gforceChart.data.datasets[0].data.push({
                 x: data.gForceLateral || 0,
@@ -1334,7 +1362,7 @@
             if (gforceChart.data.datasets[0].data.length > maxDataPoints) {
                 gforceChart.data.datasets[0].data.shift();
             }
-            
+
             speedChart.update('none');
             throttleChart.update('none');
             brakeChart.update('none');
@@ -1358,4 +1386,5 @@
         };
     </script>
 </body>
+
 </html>
