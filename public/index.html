@@ -570,15 +570,24 @@
 
             // Delta to best lap
             if (bestLapTime && data.currentLapTime > 0) {
-                const delta = (data.currentLapTime - bestLapTime) / 1000;
+                const deltaMs = data.currentLapTime - bestLapTime;
+                const deltaSec = deltaMs / 1000;
                 const deltaEl = document.getElementById('lapDelta');
-                if (delta < 0) {
-                    deltaEl.textContent = delta.toFixed(3);
+
+                if (Math.abs(deltaSec) < 0.001) {
+                    deltaEl.textContent = '0.000';
+                    deltaEl.className = 'lap-delta';
+                } else if (deltaSec < 0) {
+                    deltaEl.textContent = deltaSec.toFixed(3);
                     deltaEl.className = 'lap-delta faster';
                 } else {
-                    deltaEl.textContent = '+' + delta.toFixed(3);
+                    deltaEl.textContent = '+' + deltaSec.toFixed(3);
                     deltaEl.className = 'lap-delta slower';
                 }
+            } else {
+                const deltaEl = document.getElementById('lapDelta');
+                deltaEl.textContent = '--';
+                deltaEl.className = 'lap-delta';
             }
 
             // Temperatures
