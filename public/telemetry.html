@@ -12,7 +12,7 @@
             --bg-dark: #050508;
             --card-bg: rgba(20, 25, 40, 0.7);
             --card-border: rgba(255, 255, 255, 0.08);
-            --accent-cyan: #00f0ff;
+            --accent-cyan: #a4d233;
             --accent-red: #ff3b3b;
             --accent-green: #00ff66;
             --accent-yellow: #ffcc00;
@@ -50,14 +50,14 @@
         }
 
         .logo {
-            font-family: var(--font-head);
-            font-size: 20px;
-            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0;
         }
 
-        .logo span {
-            color: var(--accent-cyan);
-            font-weight: 300;
+        .logo img {
+            height: 35px;
+            width: auto;
         }
 
         .header-center {
@@ -396,7 +396,7 @@
 <body>
     <!-- HEADER -->
     <header class="header">
-        <div class="logo">AI <span>RACING</span></div>
+        <div class="logo"><img src="AI_Racing_Simulator_Logo.png" alt="AI Racing Simulator"></div>
         <div class="header-center">Telemetry Dashboard</div>
         <div class="live-badge">
             LIVE DATA <div class="live-dot"></div>
@@ -685,7 +685,7 @@
         // =====================================================================
 
         // Main Gauges
-        const speedGauge = createGaugeChart('speedGaugeChart', '#00f0ff', 360);
+        const speedGauge = createGaugeChart('speedGaugeChart', '#a4d233', 360);
         const rpmGauge = createGaugeChart('rpmGaugeChart', '#ff3b3b', 15000);
 
         // Temperature Gauges
@@ -699,7 +699,7 @@
         };
 
         // Trace Charts
-        const speedTrace = createTraceChart('speedTraceChart', '#00f0ff', 360);
+        const speedTrace = createTraceChart('speedTraceChart', '#a4d233', 360);
         const throttleTrace = createTraceChart('throttleTraceChart', '#00ff66', 100, true);
         const brakeTrace = createTraceChart('brakeTraceChart', '#ff3b3b', 100, true);
 
@@ -731,7 +731,7 @@
             data: {
                 labels: timeLabels,
                 datasets: [
-                    { label: 'Speed', data: speedData, borderColor: '#00f0ff', borderWidth: 2, yAxisID: 'ySpeed', pointRadius: 0, tension: 0.3 },
+                    { label: 'Speed', data: speedData, borderColor: '#a4d233', borderWidth: 2, yAxisID: 'ySpeed', pointRadius: 0, tension: 0.3 },
                     { label: 'Throttle', data: throttleData, borderColor: '#00ff66', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 },
                     { label: 'Brake', data: brakeData, borderColor: '#ff3b3b', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 }
                 ]
@@ -744,7 +744,7 @@
                 plugins: { legend: { display: false } },
                 scales: {
                     x: { display: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
-                    ySpeed: { type: 'linear', position: 'left', min: 0, max: 360, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#00f0ff', font: { size: 10 } } },
+                    ySpeed: { type: 'linear', position: 'left', min: 0, max: 360, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4d233', font: { size: 10 } } },
                     yPercent: { type: 'linear', position: 'right', min: 0, max: 100, grid: { display: false }, ticks: { color: '#888', font: { size: 10 } } }
                 }
             }
