@@ -7,6 +7,7 @@
     <title>F1 Telemetry Dashboard - Live</title>
     <link href="https://fonts.cdnfonts.com/css/akrobat" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/Mikhus/canvas-gauges@2.1.7/gauge.min.js"></script>
     <style>
         :root {
             --bg-dark: #050508;
@@ -691,9 +692,94 @@
         // INITIALIZE CHARTS
         // =====================================================================
 
-        // Main Gauges
-        const speedGauge = createGaugeChart('speedGaugeChart', '#a4d233', 360);
-        const rpmGauge = createGaugeChart('rpmGaugeChart', '#ff3b3b', 15000);
+        // Main Gauges - Using RadialGauge
+        const speedGauge = new RadialGauge({
+            renderTo: 'speedGaugeChart',
+            width: 300,
+            height: 300,
+            units: "KM/H",
+            title: "",
+            minValue: 0,
+            maxValue: 360,
+            majorTicks: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360],
+            minorTicks: 4,
+            strokeTicks: true,
+            highlights: [
+                { from: 0, to: 120, color: "rgba(164, 210, 51, 0.2)" },
+                { from: 120, to: 240, color: "rgba(164, 210, 51, 0.3)" },
+                { from: 240, to: 360, color: "rgba(164, 210, 51, 0.5)" }
+            ],
+            ticksAngle: 270,
+            startAngle: 45,
+            colorMajorTicks: "#666",
+            colorMinorTicks: "#444",
+            colorTitle: "#a4d233",
+            colorUnits: "#888",
+            colorNumbers: "#a4d233",
+            colorPlate: "transparent",
+            borderShadowWidth: 0,
+            borders: false,
+            needleType: "arrow",
+            needleWidth: 3,
+            needleCircleSize: 8,
+            needleCircleOuter: true,
+            needleCircleInner: false,
+            animationDuration: 100,
+            animationRule: "linear",
+            colorNeedle: "#a4d233",
+            colorNeedleEnd: "#a4d233",
+            colorNeedleShadowDown: "#000",
+            colorNeedleCircleOuter: "#a4d233",
+            colorNeedleCircleOuterEnd: "#a4d233",
+            colorNeedleCircleInner: "#222",
+            colorNeedleCircleInnerEnd: "#222",
+            valueBox: false,
+            value: 0
+        }).draw();
+
+        const rpmGauge = new RadialGauge({
+            renderTo: 'rpmGaugeChart',
+            width: 300,
+            height: 300,
+            units: "RPM",
+            title: "",
+            minValue: 0,
+            maxValue: 15000,
+            majorTicks: [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 15000],
+            minorTicks: 4,
+            strokeTicks: true,
+            highlights: [
+                { from: 0, to: 10000, color: "rgba(255, 59, 59, 0.2)" },
+                { from: 10000, to: 13000, color: "rgba(255, 59, 59, 0.3)" },
+                { from: 13000, to: 15000, color: "rgba(255, 59, 59, 0.6)" }
+            ],
+            ticksAngle: 270,
+            startAngle: 45,
+            colorMajorTicks: "#666",
+            colorMinorTicks: "#444",
+            colorTitle: "#ff3b3b",
+            colorUnits: "#888",
+            colorNumbers: "#ff3b3b",
+            colorPlate: "transparent",
+            borderShadowWidth: 0,
+            borders: false,
+            needleType: "arrow",
+            needleWidth: 3,
+            needleCircleSize: 8,
+            needleCircleOuter: true,
+            needleCircleInner: false,
+            animationDuration: 100,
+            animationRule: "linear",
+            colorNeedle: "#ff3b3b",
+            colorNeedleEnd: "#ff3b3b",
+            colorNeedleShadowDown: "#000",
+            colorNeedleCircleOuter: "#ff3b3b",
+            colorNeedleCircleOuterEnd: "#ff3b3b",
+            colorNeedleCircleInner: "#222",
+            colorNeedleCircleInnerEnd: "#222",
+            valueBox: false,
+            value: 0
+        }).draw();
 
         // Temperature Gauges
         const tempCharts = {
@@ -761,10 +847,8 @@
         // HELPER FUNCTIONS
         // =====================================================================
 
-        function updateGauge(chart, value, max) {
-            chart.data.datasets[0].data[0] = Math.min(value, max);
-            chart.data.datasets[0].data[1] = max - Math.min(value, max);
-            chart.update('none');
+        function updateGauge(gauge, value) {
+            gauge.value = value;
         }
 
         function updateTempGauge(chart, value, max, elId) {
@@ -810,7 +894,7 @@
             // === UPDATE SPEED ===
             const speed = Math.round(data.speed || 0);
             document.getElementById('speedValue').textContent = speed;
-            updateGauge(speedGauge, speed, 360);
+            updateGauge(speedGauge, speed);
 
             // Track max/avg speed
             if (speed > maxSpeed) maxSpeed = speed;
@@ -825,7 +909,7 @@
             let gearText = gear === 0 ? 'N' : gear === -1 ? 'R' : gear;
             document.getElementById('gearValue').textContent = gearText;
             document.getElementById('rpmValue').textContent = rpm + ' RPM';
-            updateGauge(rpmGauge, rpm, 15000);
+            updateGauge(rpmGauge, rpm);
 
             // Track max/avg RPM
             if (rpm > maxRpm) maxRpm = rpm;
