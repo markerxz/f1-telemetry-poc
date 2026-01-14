@@ -46,7 +46,7 @@
 
         /* === HEADER === */
         .header {
-            height: 55px;
+            height: 75px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -56,22 +56,28 @@
             backdrop-filter: blur(10px);
         }
 
+        .left-group {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+        }
+
         .logo {
             display: flex;
             align-items: center;
-            gap: 0;
+            justify-content: center;
         }
 
         .logo img {
-            height: 35px;
+            height: 55px;
             width: auto;
         }
 
         .header-center {
             font-family: var(--font-head);
-            font-size: 14px;
+            font-size: 18px;
             color: #a4d233;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
         }
 
@@ -115,7 +121,7 @@
             grid-template-rows: 400px 1fr;
             gap: 12px;
             padding: 15px;
-            height: calc(100vh - 55px);
+            height: calc(100vh - 75px);
             overflow: hidden;
         }
 
@@ -342,7 +348,7 @@
 
         .temp-val {
             position: absolute;
-            top: 50%;
+            top: 75%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-family: var(--font-num);
@@ -453,8 +459,10 @@
 
 <body>
     <header class="header">
-        <div class="logo"><img src="AI_Racing_Simulator_Logo.png" alt="AI Racing Simulator"></div>
-        <div class="header-center">Telemetry Dashboard</div>
+        <div class="left-group">
+            <div class="logo"><img src="AI_Racing_Simulator_Logo.png" alt="AI Racing Simulator"></div>
+            <div class="header-center">Telemetry Dashboard</div>
+        </div>
         <div class="live-badge">
             LIVE DATA <div class="live-dot" id="liveDot"></div>
         </div>
