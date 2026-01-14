@@ -200,13 +200,14 @@
         /* === COL 2 & 3: GAUGES === */
         .gauge-card {
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
+            padding-top: 15px;
         }
 
         .gauge-wrapper {
             position: relative;
-            width: 320px;
-            height: 320px;
+            width: 310px;
+            height: 310px;
             margin: 0 auto;
         }
 
@@ -215,41 +216,37 @@
             height: 100% !important;
         }
 
-        .gauge-center {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        /* Digital values moved below */
+        .digital-display {
             text-align: center;
-            z-index: 10;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            margin-top: -35px;
+            margin-bottom: 5px;
+            z-index: 5;
         }
 
-        .gauge-value {
+        .digital-value {
             font-family: 'Akrobat', sans-serif;
-            font-size: 64px;
+            font-size: 72px;
             font-weight: 900;
             line-height: 1;
             color: var(--text-main);
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
         }
 
-        .gauge-unit {
+        .digital-unit {
             font-size: 14px;
             color: var(--text-muted);
-            margin-top: 0;
             font-weight: 700;
             letter-spacing: 2px;
+            margin-top: -5px;
         }
 
         .gauge-stats {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: 10px;
+            margin-top: auto;
+            padding-bottom: 15px;
         }
 
         .gauge-stat-pill {
@@ -261,17 +258,59 @@
             font-weight: 600;
         }
 
-        /* === COL 4: TEMPERATURES === */
-        .temp-card {
+        /* === COL 4: GEAR & TEMP SPLIT === */
+        .col-4-split {
             grid-column: 4;
             grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .temp-card .temp-grid {
+        .gear-card {
+            flex: 1.4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .gear-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .gear-main {
+            font-size: 150px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 40px rgba(164, 210, 51, 0.4);
+        }
+
+        .temp-card-reduced {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .temp-grid-small {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             flex: 1;
+            margin-top: 10px;
         }
 
         .temp-item {
@@ -285,8 +324,8 @@
         }
 
         .temp-gauge-mini {
-            width: 55px;
-            height: 55px;
+            width: 70px;
+            height: 70px;
             position: relative;
         }
 
@@ -295,9 +334,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-family: var(--font-head);
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 800;
+            color: #fff;
         }
 
         .temp-label {
@@ -447,10 +486,10 @@
         <div class="card gauge-card">
             <div class="gauge-wrapper">
                 <canvas id="speedGaugeChart"></canvas>
-                <div class="gauge-center">
-                    <div class="gauge-value text-cyan" id="speedValue">0</div>
-                    <div class="gauge-unit">KM/H</div>
-                </div>
+            </div>
+            <div class="digital-display">
+                <div class="digital-value text-cyan" id="speedValue">0</div>
+                <div class="digital-unit">KM/H</div>
             </div>
             <div class="gauge-stats">
                 <div class="gauge-stat-pill">AVG: <span id="avgSpeed">0</span></div>
@@ -462,56 +501,38 @@
         <div class="card gauge-card">
             <div class="gauge-wrapper">
                 <canvas id="rpmGaugeChart"></canvas>
-                <div class="gauge-center">
-                    <div class="gauge-value text-red" id="gearValue">N</div>
-                    <div class="gauge-unit" id="rpmValue">0 RPM</div>
-                </div>
+            </div>
+            <div class="digital-display">
+                <div class="digital-value text-red" id="rpmValueDisplay">0</div>
+                <div class="digital-unit">RPM</div>
             </div>
             <div class="gauge-stats">
-                <div class="gauge-stat-pill">AVG RPM: <span id="avgRpm">0</span></div>
-                <div class="gauge-stat-pill">MAX RPM: <span id="maxRpm">15000</span></div>
+                <div class="gauge-stat-pill">AVG: <span id="avgRpm">0</span></div>
+                <div class="gauge-stat-pill">MAX: <span id="maxRpm">15k</span></div>
             </div>
         </div>
 
-        <!-- COL 4: Temperatures -->
-        <div class="card temp-card">
-            <div class="card-title" style="text-align: center;">Temperature</div>
-            <div class="temp-grid">
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempEngine"></canvas>
-                        <div class="temp-val text-red" id="engineTempVal">0°C</div>
+        <!-- COL 4: Gear & Temp Split -->
+        <div class="col-4-split">
+            <div class="gear-card">
+                <div class="gear-label">CURRENT GEAR</div>
+                <div class="gear-main" id="gearValue">N</div>
+            </div>
+            <div class="temp-card-reduced">
+                <div class="card-title" style="text-align: center;">Temperatures</div>
+                <div class="temp-grid-small">
+                    <div class="temp-item">
+                        <div class="temp-gauge-mini"><canvas id="tempEngine"></canvas>
+                            <div class="temp-val text-red" id="engineTempVal">0°C</div>
+                        </div>
+                        <div class="temp-label">Engine</div>
                     </div>
-                    <div class="temp-label">Engine</div>
-                </div>
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempBrake"></canvas>
-                        <div class="temp-val text-red" id="brakeTempVal">0°C</div>
+                    <div class="temp-item">
+                        <div class="temp-gauge-mini"><canvas id="tempBrake"></canvas>
+                            <div class="temp-val text-red" id="brakeTempVal">0°C</div>
+                        </div>
+                        <div class="temp-label">Brake</div>
                     </div>
-                    <div class="temp-label">Brake</div>
-                </div>
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempTyreFL"></canvas>
-                        <div class="temp-val text-green" id="tyreFLVal">0°C</div>
-                    </div>
-                    <div class="temp-label">Tyre FL</div>
-                </div>
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempTyreFR"></canvas>
-                        <div class="temp-val text-green" id="tyreFRVal">0°C</div>
-                    </div>
-                    <div class="temp-label">Tyre FR</div>
-                </div>
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempTyreRL"></canvas>
-                        <div class="temp-val text-green" id="tyreRLVal">0°C</div>
-                    </div>
-                    <div class="temp-label">Tyre RL</div>
-                </div>
-                <div class="temp-item">
-                    <div class="temp-gauge-mini"><canvas id="tempTyreRR"></canvas>
-                        <div class="temp-val text-green" id="tyreRRVal">0°C</div>
-                    </div>
-                    <div class="temp-label">Tyre RR</div>
                 </div>
             </div>
         </div>
@@ -558,48 +579,7 @@
     </main>
 
     <script>
-        // =====================================================================
-        // DEBUG LOGGING SYSTEM
-        // =====================================================================
-        const debugContent = document.getElementById('debugLogContent');
-        const debugPacketEl = document.getElementById('debugPacketCount');
         const liveDot = document.getElementById('liveDot');
-
-        function addToDebugLog(msg, type = 'log') {
-            const entry = document.createElement('div');
-            entry.style.color = type === 'error' ? '#ff3b3b' : '#00ff00';
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-            if (debugContent) {
-                debugContent.appendChild(entry);
-                debugContent.scrollTop = debugContent.scrollHeight;
-            }
-        }
-
-        // Intercept console
-        const originalLog = console.log;
-        const originalError = console.error;
-        console.log = (...args) => {
-            const msg = args.map(a => {
-                if (a instanceof Error) return a.message + '\n' + a.stack;
-                return typeof a === 'object' ? JSON.stringify(a) : a;
-            }).join(' ');
-            addToDebugLog(msg);
-            originalLog.apply(console, args);
-        };
-        console.error = (...args) => {
-            const msg = args.map(a => {
-                if (a instanceof Error) return a.message + '\n' + a.stack;
-                return typeof a === 'object' ? JSON.stringify(a) : a;
-            }).join(' ');
-            addToDebugLog(msg, 'error');
-            originalError.apply(console, args);
-        };
-
-        window.onerror = (msg, url, line) => {
-            console.error(`GLOBAL ERROR: ${msg} at ${url}:${line}`);
-        };
-
-        console.log('--- DASHBOARD STARTING ---');
 
         // =====================================================================
         // CONFIGURATION & STATE
@@ -685,8 +665,8 @@
                     responsive: true, maintainAspectRatio: false, animation: false,
                     plugins: { legend: { display: false } },
                     scales: {
-                        x: { display: false },
-                        y: { display: false, min: 0, max: maxY }
+                        x: { display: true, ticks: { display: false }, grid: { display: false } },
+                        y: { display: true, min: 0, max: maxY, ticks: { font: { size: 8 } }, grid: { color: 'rgba(255,255,255,0.03)' } }
                     }
                 }
             });
@@ -740,10 +720,6 @@
 
                 tempCharts.engine = createTempGauge('tempEngine', '#ff3b3b');
                 tempCharts.brake = createTempGauge('tempBrake', '#ff6b00');
-                tempCharts.tyreFL = createTempGauge('tempTyreFL', '#00ff66');
-                tempCharts.tyreFR = createTempGauge('tempTyreFR', '#00ff66');
-                tempCharts.tyreRL = createTempGauge('tempTyreRL', '#00ff66');
-                tempCharts.tyreRR = createTempGauge('tempTyreRR', '#00ff66');
 
                 speedTrace = createTraceChart('speedTraceChart', '#a4d233', 360);
                 throttleTrace = createTraceChart('throttleTraceChart', '#00ff66', 100, true);
@@ -756,8 +732,8 @@
                         responsive: true, maintainAspectRatio: false, animation: false,
                         plugins: { legend: { display: false } },
                         scales: {
-                            x: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
-                            y: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } }
+                            x: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: true, font: { size: 8 } } },
+                            y: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: true, font: { size: 8 } } }
                         }
                     }
                 });
@@ -775,9 +751,9 @@
                     options: {
                         responsive: true, maintainAspectRatio: false, animation: false,
                         scales: {
-                            x: { display: false },
-                            ySpeed: { min: 0, max: 360, position: 'left' },
-                            yPercent: { min: 0, max: 100, position: 'right' }
+                            x: { display: true, ticks: { display: false }, grid: { display: false } },
+                            ySpeed: { min: 0, max: 360, position: 'left', ticks: { font: { size: 8 } } },
+                            yPercent: { min: 0, max: 100, position: 'right', ticks: { font: { size: 8 } } }
                         },
                         plugins: { legend: { display: false } }
                     }
@@ -808,7 +784,6 @@
                 const data = JSON.parse(event.data);
                 if (dataCount === 0) console.log('FIRST:', Object.keys(data));
                 dataCount++;
-                if (debugPacketEl) debugPacketEl.textContent = `(Packets: ${dataCount})`;
 
                 // Visual pulse on dot
                 if (liveDot) {
@@ -827,7 +802,7 @@
                 const r = Math.round(data.rpm || 0);
                 const g = data.gear === 0 ? 'N' : data.gear === -1 ? 'R' : data.gear;
                 if (document.getElementById('gearValue')) document.getElementById('gearValue').textContent = g;
-                if (document.getElementById('rpmValue')) document.getElementById('rpmValue').textContent = r + ' RPM';
+                if (document.getElementById('rpmValueDisplay')) document.getElementById('rpmValueDisplay').textContent = r;
                 updateGaugeValue(rpmGauge, r);
 
                 if (data.currentLapTimeStr && document.getElementById('currentLap')) document.getElementById('currentLap').textContent = data.currentLapTimeStr;
@@ -836,10 +811,6 @@
                 updateT(tempCharts.engine, data.engineTemp || 0, 150, 'engineTempVal');
                 const bvg = ((data.brakeFL || 0) + (data.brakeFR || 0) + (data.brakeRL || 0) + (data.brakeRR || 0)) / 4;
                 updateT(tempCharts.brake, bvg, 1200, 'brakeTempVal');
-                updateT(tempCharts.tyreFL, data.tyreFL || 0, 120, 'tyreFLVal');
-                updateT(tempCharts.tyreFR, data.tyreFR || 0, 120, 'tyreFRVal');
-                updateT(tempCharts.tyreRL, data.tyreRL || 0, 120, 'tyreRLVal');
-                updateT(tempCharts.tyreRR, data.tyreRR || 0, 120, 'tyreRRVal');
 
                 if (timeLabels.length >= MAX_DATA_POINTS) {
                     timeLabels.shift(); speedData.shift(); throttleData.shift();
