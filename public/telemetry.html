@@ -211,16 +211,6 @@
             width: 100%;
         }
 
-        .gauge-wrapper::before {
-            content: '';
-            position: absolute;
-            width: 90%;
-            height: 90%;
-            border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.03);
-            pointer-events: none;
-        }
-
         .gauge-center {
             position: absolute;
             text-align: center;
@@ -229,7 +219,7 @@
             transform: translate(-50%, -40%);
             z-index: 10;
             pointer-events: none;
-            opacity: 0.3;
+            display: none;
         }
 
         .gauge-value {
