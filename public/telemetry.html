@@ -7,7 +7,7 @@
     <title>F1 Telemetry Dashboard - Live</title>
     <link href="https://fonts.cdnfonts.com/css/akrobat" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/Mikhus/canvas-gauges@2.1.7/gauge.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-gauges@2.1.7/gauge.min.js"></script>
     <style>
         :root {
             --bg-dark: #050508;
@@ -582,11 +582,19 @@
         const originalLog = console.log;
         const originalError = console.error;
         console.log = (...args) => {
-            addToDebugLog(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '));
+            const msg = args.map(a => {
+                if (a instanceof Error) return a.message + '\n' + a.stack;
+                return typeof a === 'object' ? JSON.stringify(a) : a;
+            }).join(' ');
+            addToDebugLog(msg);
             originalLog.apply(console, args);
         };
         console.error = (...args) => {
-            addToDebugLog(args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' '), 'error');
+            const msg = args.map(a => {
+                if (a instanceof Error) return a.message + '\n' + a.stack;
+                return typeof a === 'object' ? JSON.stringify(a) : a;
+            }).join(' ');
+            addToDebugLog(msg, 'error');
             originalError.apply(console, args);
         };
 
@@ -697,29 +705,35 @@
         function initDashboard() {
             try {
                 if (typeof RadialGauge !== 'undefined') {
-                    console.log('Found RadialGauge library, initing...');
+                    console.log('Initing Gauges...');
                     try {
-                        speedGauge = new RadialGauge({
-                            renderTo: 'speedGaugeChart', width: 300, height: 300, units: "KM/H",
-                            minValue: 0, maxValue: 360,
-                            majorTicks: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360],
-                            colorNumbers: "#a4d233", colorPlate: "transparent", borders: false,
-                            needleType: "arrow", colorNeedle: "#a4d233", valueBox: false,
-                            animationDuration: 10, animationRule: "linear"
-                        }).draw();
-                        console.log('Speed Gauge OK');
+                        const sCanvas = document.getElementById('speedGaugeChart');
+                        if (sCanvas) {
+                            speedGauge = new RadialGauge({
+                                renderTo: sCanvas, width: 300, height: 300, units: "KM/H",
+                                minValue: 0, maxValue: 360,
+                                majorTicks: ["0", "40", "80", "120", "160", "200", "240", "280", "320", "360"],
+                                colorNumbers: "#a4d233", colorPlate: "transparent", borders: false,
+                                needleType: "arrow", colorNeedle: "#a4d233", valueBox: false,
+                                animation: true, animationDuration: 100, animationRule: "linear"
+                            }).draw();
+                            console.log('Speed Gauge OK');
+                        }
                     } catch (e) { console.error('Speed Gauge ERR:', e); }
 
                     try {
-                        rpmGauge = new RadialGauge({
-                            renderTo: 'rpmGaugeChart', width: 300, height: 300, units: "RPM",
-                            minValue: 0, maxValue: 15000,
-                            majorTicks: [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 15000],
-                            colorNumbers: "#ff3b3b", colorPlate: "transparent", borders: false,
-                            needleType: "arrow", colorNeedle: "#ff3b3b", valueBox: false,
-                            animationDuration: 10, animationRule: "linear"
-                        }).draw();
-                        console.log('RPM Gauge OK');
+                        const rCanvas = document.getElementById('rpmGaugeChart');
+                        if (rCanvas) {
+                            rpmGauge = new RadialGauge({
+                                renderTo: rCanvas, width: 300, height: 300, units: "RPM",
+                                minValue: 0, maxValue: 15000,
+                                majorTicks: ["0", "3", "6", "9", "12", "15"],
+                                colorNumbers: "#ff3b3b", colorPlate: "transparent", borders: false,
+                                needleType: "arrow", colorNeedle: "#ff3b3b", valueBox: false,
+                                animation: true, animationDuration: 100, animationRule: "linear"
+                            }).draw();
+                            console.log('RPM Gauge OK');
+                        }
                     } catch (e) { console.error('RPM Gauge ERR:', e); }
                 } else {
                     console.error('RadialGauge NOT LOADED');
