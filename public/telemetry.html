@@ -198,61 +198,66 @@
 
         /* === COL 2 & 3: GAUGES === */
         .gauge-card {
-            position: relative;
             align-items: center;
             justify-content: center;
         }
 
         .gauge-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            width: 100%;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto;
+        }
+
+        .gauge-wrapper canvas {
+            width: 100% !important;
+            height: 100% !important;
         }
 
         .gauge-center {
             position: absolute;
-            text-align: center;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -40%);
+            transform: translate(-50%, -50%);
+            text-align: center;
             z-index: 10;
             pointer-events: none;
-            display: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .gauge-value {
-            font-family: var(--font-head);
-            font-size: 56px;
+            font-family: 'Akrobat', sans-serif;
+            font-size: 64px;
             font-weight: 900;
             line-height: 1;
-            text-shadow: 0 0 20px currentColor;
+            color: var(--text-main);
         }
 
         .gauge-unit {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-muted);
-            margin-top: 8px;
-            letter-spacing: 3px;
+            margin-top: 0;
             font-weight: 700;
+            letter-spacing: 2px;
         }
 
         .gauge-stats {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-top: auto;
-            padding-top: 10px;
+            margin-top: 10px;
         }
 
         .gauge-stat-pill {
             background: rgba(255, 255, 255, 0.05);
-            padding: 8px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
         }
 
         /* === COL 4: TEMPERATURES === */
@@ -397,8 +402,7 @@
 <body>
     <header class="header">
         <div class="logo"><img src="AI_Racing_Simulator_Logo.png" alt="AI Racing Simulator"></div>
-        <div class="header-center">Telemetry Dashboard <span id="debugPacketCount"
-                style="font-size: 10px; color: #666; margin-left:10px;">(Packets: 0)</span></div>
+        <div class="header-center">Telemetry Dashboard</div>
         <div class="live-badge">
             LIVE DATA <div class="live-dot" id="liveDot"></div>
         </div>
@@ -552,14 +556,6 @@
             </div>
     </main>
 
-    <!-- DEBUG LOG PANEL -->
-    <div id="debugLogPanel"
-        style="position:fixed; bottom:0; left:0; width:100%; height:150px; background:rgba(0,0,0,0.9); color:#00ff00; font-family:monospace; font-size:10px; overflow-y:auto; z-index:9999; border-top:1px solid #333; padding:10px; pointer-events:auto; display:block;">
-        <div style="font-weight:bold; border-bottom:1px solid #333; margin-bottom:5px;">DEBUG LOG (Auto-capturing
-            console)</div>
-        <div id="debugLogContent"></div>
-    </div>
-
     <script>
         // =====================================================================
         // DEBUG LOGGING SYSTEM
@@ -710,14 +706,15 @@
                         const sCanvas = document.getElementById('speedGaugeChart');
                         if (sCanvas) {
                             speedGauge = new RadialGauge({
-                                renderTo: sCanvas, width: 300, height: 300, units: "KM/H",
+                                renderTo: sCanvas, width: 320, height: 320, units: "KM/H",
                                 minValue: 0, maxValue: 360,
                                 majorTicks: ["0", "40", "80", "120", "160", "200", "240", "280", "320", "360"],
                                 colorNumbers: "#a4d233", colorPlate: "transparent", borders: false,
                                 needleType: "arrow", colorNeedle: "#a4d233", valueBox: false,
-                                animation: true, animationDuration: 100, animationRule: "linear"
+                                animation: true, animationDuration: 100, animationRule: "linear",
+                                ticksAngle: 270, startAngle: 45,
+                                highlights: []
                             }).draw();
-                            console.log('Speed Gauge OK');
                         }
                     } catch (e) { console.error('Speed Gauge ERR:', e); }
 
@@ -725,14 +722,15 @@
                         const rCanvas = document.getElementById('rpmGaugeChart');
                         if (rCanvas) {
                             rpmGauge = new RadialGauge({
-                                renderTo: rCanvas, width: 300, height: 300, units: "RPM",
+                                renderTo: rCanvas, width: 320, height: 320, units: "RPM",
                                 minValue: 0, maxValue: 15000,
                                 majorTicks: ["0", "3", "6", "9", "12", "15"],
                                 colorNumbers: "#ff3b3b", colorPlate: "transparent", borders: false,
                                 needleType: "arrow", colorNeedle: "#ff3b3b", valueBox: false,
-                                animation: true, animationDuration: 100, animationRule: "linear"
+                                animation: true, animationDuration: 100, animationRule: "linear",
+                                ticksAngle: 270, startAngle: 45,
+                                highlights: []
                             }).draw();
-                            console.log('RPM Gauge OK');
                         }
                     } catch (e) { console.error('RPM Gauge ERR:', e); }
                 } else {
