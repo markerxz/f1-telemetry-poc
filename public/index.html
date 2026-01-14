@@ -406,29 +406,7 @@
             }
         });
 
-        function updateTrackPosition(lapDistance) {
-            if (!trackLength || lapDistance === undefined) return;
 
-            const progress = (lapDistance / trackLength) % 1; // Ensure 0-1 range
-            const carPos = document.getElementById('carPosition');
-            const container = carPos.parentElement;
-
-            // Use container dimensions directly (not getBoundingClientRect which can change)
-            const width = container.offsetWidth;
-            const height = container.offsetHeight;
-
-            // Circular approximation - start at top, go clockwise
-            const centerX = width / 2;
-            const centerY = height / 2;
-            const radius = Math.min(width, height) * 0.35;
-
-            const angle = progress * 2 * Math.PI - Math.PI / 2; // Start at top (12 o'clock)
-            const x = centerX + radius * Math.cos(angle);
-            const y = centerY + radius * Math.sin(angle);
-
-            carPos.style.left = x + 'px';
-            carPos.style.top = y + 'px';
-        }
 
 
 
@@ -555,10 +533,7 @@
             document.getElementById('tyreRL').textContent = (data.tyreRL || 0) + '°C';
             document.getElementById('tyreRR').textContent = (data.tyreRR || 0) + '°C';
 
-            // Track position
-            if (data.lapDistance !== undefined) {
-                updateTrackPosition(data.lapDistance);
-            }
+
 
             // Update charts
             if (timeLabels.length >= maxDataPoints) {
