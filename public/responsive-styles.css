@@ -1,5 +1,19 @@
-/* F1 Telemetry - Responsive CSS */
-/* All sizes reduced by ~50% and made viewport-relative */
+/* F1 Telemetry Dashboard - Premium Design */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap');
+
+:root {
+    --bg-dark: #050505;
+    --card-bg: rgba(20, 24, 35, 0.6);
+    --card-border: rgba(255, 255, 255, 0.1);
+    --text-main: #ffffff;
+    --text-muted: #8b9bb4;
+    --accent-cyan: #00f0ff;
+    --accent-red: #ff3b3b;
+    --accent-green: #00ff66;
+    --accent-yellow: #ffcc00;
+    --font-head: 'Orbitron', sans-serif;
+    --font-body: 'Rajdhani', sans-serif;
+}
 
 * {
     margin: 0;
@@ -8,564 +22,267 @@
 }
 
 body {
-    font-family: 'Segoe UI', 'Arial', sans-serif;
-    background: #000;
-    color: #fff;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    height: 100vh;
     overflow: hidden;
-    font-size: clamp(10px, 0.8vw, 14px);
+    background-image: radial-gradient(circle at 50% 50%, #1a1f35 0%, #000000 100%);
 }
 
-/* Top Bar - Compact */
+/* Header */
 .top-bar {
-    height: 50px;
-    background: #0f0f0f;
-    border-bottom: 2px solid #a4d233;
+    height: 60px;
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 15px;
+    padding: 0 30px;
+    border-bottom: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
 }
 
 .branding {
     display: flex;
     align-items: center;
-    gap: 10px;
-}
-
-.ais-logo {
-    height: 35px;
-}
-
-.branding-text {
-    font-size: clamp(12px, 1.2vw, 18px);
-    font-weight: bold;
-    color: #a4d233;
-}
-
-.track-info {
-    text-align: center;
-    flex: 1;
-}
-
-.track-name {
-    font-size: clamp(14px, 1.5vw, 22px);
-    font-weight: bold;
-    color: #a4d233;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-.session-info {
-    display: flex;
     gap: 15px;
-    font-size: clamp(10px, 1vw, 14px);
-    color: #888;
-    justify-content: center;
 }
 
-.driver-input-container {
+.logo-text {
+    font-family: var(--font-head);
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #fff, #8b9bb4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.dashboard-title {
+    margin-left: 40px;
+    font-size: 18px;
+    color: var(--accent-yellow);
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* Main Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 1fr 300px 350px;
+    grid-template-rows: 400px 1fr;
+    gap: 15px;
+    padding: 20px;
+    height: calc(100vh - 60px);
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    backdrop-filter: blur(20px);
     display: flex;
     flex-direction: column;
-    gap: 3px;
-    align-items: flex-end;
 }
 
-.driver-input-label {
-    font-size: clamp(8px, 0.7vw, 11px);
-    color: #888;
+.card-title {
+    font-size: 14px;
+    color: var(--text-muted);
     text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    font-weight: 700;
 }
 
-.driver-input {
-    background: #0f0f0f;
-    border: 2px solid #a4d233;
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-size: clamp(10px, 0.9vw, 13px);
-    color: #a4d233;
-    font-weight: bold;
-    text-align: center;
-    min-width: 150px;
-}
-
-.driver-input:focus {
-    outline: none;
-    border-color: #b5e344;
-    box-shadow: 0 0 10px rgba(164, 210, 51, 0.5);
-}
-
-.session-id-display {
-    font-size: clamp(7px, 0.6vw, 9px);
-    color: #666;
-    font-family: 'Consolas', monospace;
-}
-
-.live-indicator {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: clamp(10px, 0.9vw, 13px);
-    color: #888;
-}
-
-.live-dot {
-    width: 12px;
-    height: 12px;
-    background: #00ff00;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-
-    0%,
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-
-    50% {
-        opacity: 0.6;
-        transform: scale(0.9);
-    }
-}
-
-/* Main Layout - Responsive Grid - FIXED */
-.main-container {
-    display: grid;
-    grid-template-columns: 0.9fr 1.4fr 0.9fr;
-    height: calc(100vh - 90px);
-    gap: 8px;
-    padding: 8px;
-    overflow: hidden;
-}
-
-/* Columns - FIXED OVERFLOW */
-.left-column,
-.center-column,
-.right-column {
+/* Driver Panel (Col 1) */
+.driver-info {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    overflow: hidden;
-    min-height: 0;
+    gap: 20px;
 }
 
-/* Chart Boxes - Compact */
-.chart-box {
-    background: #0f0f0f;
-    border: 2px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 10px;
-    flex: 1;
-    overflow: hidden;
-    min-height: 0;
+.driver-name {
+    font-family: var(--font-head);
+    font-size: 28px;
+    line-height: 1.2;
 }
 
-.chart-title {
-    font-size: clamp(12px, 1.2vw, 18px);
-    color: #a4d233;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
+.driver-name span {
+    color: var(--accent-cyan);
 }
 
-.chart-container {
-    height: calc(100% - 30px);
+.team-name {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-top: -15px;
 }
 
-/* Speed/Lap Box - Compact */
-.speed-lap-box {
-    background: #0f0f0f;
-    border: 2px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.speed-label,
-.lap-label {
-    font-size: clamp(10px, 1vw, 14px);
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.speed-value {
-    font-size: clamp(40px, 5vw, 80px);
-    font-weight: bold;
-    color: #00d9ff;
-    line-height: 1;
-    font-family: 'Courier New', monospace;
-}
-
-.speed-unit {
-    font-size: clamp(14px, 1.5vw, 22px);
-    color: #666;
-    margin-top: 5px;
-}
-
-.lap-time {
-    font-size: clamp(30px, 4vw, 60px);
-    font-weight: bold;
-    color: #a4d233;
-    line-height: 1;
-    font-family: 'Courier New', monospace;
-}
-
-.lap-delta {
-    font-size: clamp(14px, 1.5vw, 22px);
-    font-weight: bold;
-    margin-top: 8px;
-}
-
-.lap-delta.faster {
-    color: #00ff00;
-}
-
-.lap-delta.slower {
-    color: #ff0000;
-}
-
-/* Gear/RPM Box - Compact */
-.gear-rpm-box {
-    display: grid;
-    grid-template-columns: 0.8fr 1.2fr;
-    gap: 10px;
-}
-
-.gear-box,
-.rpm-box {
-    background: #0f0f0f;
-    border: 2px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 15px;
-}
-
-.gear-label,
-.rpm-label {
-    font-size: clamp(10px, 1vw, 14px);
-    color: #666;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-}
-
-.gear-value {
-    font-size: clamp(40px, 5vw, 80px);
-    font-weight: bold;
-    color: #00d9ff;
-    font-family: 'Courier New', monospace;
-}
-
-.drs-indicator {
-    font-size: clamp(10px, 1vw, 14px);
-    padding: 5px 10px;
-    border-radius: 5px;
-    margin-top: 8px;
-    font-weight: bold;
-}
-
-.drs-on {
-    background: #00ff00;
-    color: #000;
-}
-
-.drs-off {
-    background: #333;
-    color: #666;
-}
-
-.rpm-bar {
-    position: relative;
-    height: 40px;
-    background: #1a1a1a;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.rpm-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
-    transition: width 0.1s;
-}
-
-.rpm-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: clamp(14px, 1.5vw, 20px);
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 5px #000;
-}
-
-/* Controls Box - Compact */
-.controls-box {
-    background: #0f0f0f;
-    border: 2px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 15px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 10px;
-}
-
-.steering-container {
-    text-align: center;
-}
-
-.steering-label,
-.pedal-label {
-    font-size: clamp(9px, 0.9vw, 12px);
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.steering-wheel {
-    width: 60px;
-    height: 60px;
-    margin: 5px auto;
-    background: #1a1a1a;
-    border: 3px solid #00d9ff;
-    border-radius: 50%;
-    position: relative;
-    transition: transform 0.1s;
-}
-
-.steering-grip {
-    position: absolute;
-    width: 4px;
-    height: 30px;
-    background: #00d9ff;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-}
-
-.steering-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: clamp(10px, 1vw, 14px);
-    font-weight: bold;
-    color: #00d9ff;
-}
-
-.steering-value {
-    font-size: clamp(10px, 1vw, 13px);
-    color: #888;
-    margin-top: 5px;
-}
-
-.pedal-bar {
-    height: 80px;
-    width: 100%;
-    background: #1a1a1a;
-    border-radius: 5px;
-    position: relative;
-    overflow: hidden;
-}
-
-.pedal-fill {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    transition: height 0.1s;
-}
-
-.throttle-fill {
-    background: #00ff00;
-}
-
-.brake-fill {
-    background: #ff0000;
-}
-
-.pedal-value {
-    font-size: clamp(11px, 1.1vw, 15px);
-    color: #888;
-    margin-top: 5px;
-    text-align: center;
-}
-
-/* Data Boxes - Compact - FIXED */
-.data-box {
-    background: #0f0f0f;
-    border: 2px solid #1a1a1a;
-    border-radius: 10px;
-    padding: 10px;
-    min-height: 0;
-    overflow: hidden;
-}
-
-.data-title {
-    font-size: clamp(12px, 1.2vw, 18px);
-    color: #a4d233;
-    margin-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: bold;
-}
-
-.sectors-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-}
-
-.sector-item {
-    background: #1a1a1a;
-    padding: 6px;
-    border-radius: 6px;
-    text-align: center;
-    overflow: hidden;
-}
-
-.sector-label {
-    font-size: clamp(7px, 0.65vw, 9px);
-    color: #666;
-    margin-bottom: 2px;
-    white-space: nowrap;
-}
-
-.sector-value {
-    font-size: clamp(10px, 1vw, 14px);
-    font-weight: bold;
-    color: #a4d233;
-    font-family: 'Courier New', monospace;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.sector-best {
-    font-size: clamp(8px, 0.75vw, 10px);
-    color: #888;
-    margin-top: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* Lap History - Compact */
-.lap-history {
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.lap-history-item {
+.stat-row {
     display: flex;
     justify-content: space-between;
-    padding: 6px 8px;
-    margin-bottom: 5px;
-    background: #1a1a1a;
-    border-radius: 5px;
-    font-size: clamp(10px, 1vw, 13px);
-    font-family: 'Courier New', monospace;
-}
-
-.lap-history-item.best {
-    background: #a4d233;
-    color: #000;
-}
-
-/* Track Map - Compact */
-.track-map-container {
-    position: relative;
-    background: #0a0a0a;
-    border-radius: 8px;
-    padding: 10px;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    height: 150px;
-}
-
-.track-map {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.car-position {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background: #ff0080;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 15px rgba(255, 0, 128, 1);
-}
-
-/* Telemetry Grid - Compact */
-.telemetry-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-}
-
-.telemetry-item {
-    background: #1a1a1a;
-    padding: 8px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.telemetry-label {
-    font-size: clamp(8px, 0.8vw, 11px);
-    color: #666;
-    margin-bottom: 5px;
-}
-
-.telemetry-value {
-    font-size: clamp(14px, 1.5vw, 22px);
-    font-weight: bold;
-    color: #ff9900;
-    font-family: 'Courier New', monospace;
-}
-
-/* Bottom Bar - Compact */
-.bottom-bar {
-    height: 40px;
-    background: #0f0f0f;
-    border-top: 2px solid #a4d233;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 0 20px;
-}
-
-.telemetry-stats {
-    display: flex;
-    gap: 20px;
-    font-size: clamp(10px, 1vw, 14px);
-    color: #666;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 0;
 }
 
 .stat-label {
-    color: #666;
-    margin-right: 5px;
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
 .stat-value {
-    color: #a4d233;
+    font-family: var(--font-head);
+    font-size: 18px;
+}
+
+.lap-time-display {
+    font-family: var(--font-head);
+    font-size: 36px;
+    color: #fff;
+    margin: 10px 0;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* Gauges (Col 2 & 3) */
+.gauge-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.gauge-center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -40%);
+    text-align: center;
+}
+
+.gauge-value {
+    font-family: var(--font-head);
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.gauge-unit {
+    font-size: 16px;
+    color: var(--text-muted);
+    margin-top: 5px;
+}
+
+.status-pills {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pill {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: bold;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar {
-    width: 6px;
+/* Temps (Col 4) */
+.temp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    height: 100%;
 }
 
-::-webkit-scrollbar-track {
-    background: #1a1a1a;
+.temp-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-::-webkit-scrollbar-thumb {
-    background: #00d9ff;
-    border-radius: 3px;
+.mini-gauge {
+    width: 60px;
+    height: 60px;
+    position: relative;
+}
+
+.temp-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 5px;
+    text-align: center;
+}
+
+.temp-val-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Right Charts (Col 5) */
+.charts-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 100%;
+}
+
+.mini-chart-box {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.mini-chart-label {
+    font-size: 10px;
+    color: var(--text-muted);
+    position: absolute;
+    top: 5px;
+    left: 10px;
+}
+
+.mini-chart-content {
+    flex: 1;
+    width: 100%;
+}
+
+/* Bottom Analysis (Row 2) */
+.analysis-container {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+}
+
+.analysis-chart-wrapper {
+    flex: 1;
+    width: 100%;
+    position: relative;
+}
+
+/* Utilities */
+.text-cyan {
+    color: var(--accent-cyan);
+}
+
+.text-red {
+    color: var(--accent-red);
+}
+
+.text-green {
+    color: var(--accent-green);
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
