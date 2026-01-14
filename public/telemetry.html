@@ -607,11 +607,11 @@
         const ws = new WebSocket('ws://' + window.location.host);
         const MAX_DATA_POINTS = 300;
 
-        const timeLabels = [];
-        const speedData = [];
-        const throttleData = [];
-        const brakeData = [];
-        const rpmData = [];
+        const timeLabels = new Array(MAX_DATA_POINTS).fill('');
+        const speedData = new Array(MAX_DATA_POINTS).fill(null);
+        const throttleData = new Array(MAX_DATA_POINTS).fill(null);
+        const brakeData = new Array(MAX_DATA_POINTS).fill(null);
+        const rpmData = new Array(MAX_DATA_POINTS).fill(null);
 
         let maxSpeed = 0;
         let maxRpm = 0;
@@ -834,15 +834,24 @@
                 const bvg = ((data.brakeFL || 0) + (data.brakeFR || 0) + (data.brakeRL || 0) + (data.brakeRR || 0)) / 4;
                 updateT(tempCharts.brake, bvg, 1200, 'brakeTempVal');
 
-                if (timeLabels.length >= MAX_DATA_POINTS) {
-                    timeLabels.shift(); speedData.shift(); throttleData.shift();
-                    brakeData.shift(); rpmData.shift();
-                    if (gforceChart) gforceChart.data.datasets[0].data.shift();
-                }
-                timeLabels.push(''); speedData.push(s);
-                throttleData.push(data.throttle || 0); brakeData.push(data.brake || 0); rpmData.push(r);
+                timeLabels.shift();
+                speedData.shift();
+                throttleData.shift();
+                brakeData.shift();
+                rpmData.shift();
 
-                if (gforceChart) gforceChart.data.datasets[0].data.push({ x: data.gForceLateral || 0, y: data.gForceLongitudinal || 0 });
+                timeLabels.push('');
+                speedData.push(s);
+                throttleData.push(data.throttle || 0);
+                brakeData.push(data.brake || 0);
+                rpmData.push(r);
+
+                if (gforceChart) {
+                    if (gforceChart.data.datasets[0].data.length >= MAX_DATA_POINTS) {
+                        gforceChart.data.datasets[0].data.shift();
+                    }
+                    gforceChart.data.datasets[0].data.push({ x: data.gForceLateral || 0, y: data.gForceLongitudinal || 0 });
+                }
 
                 if (speedTrace) speedTrace.update('none');
                 if (throttleTrace) throttleTrace.update('none');
