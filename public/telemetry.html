@@ -881,6 +881,7 @@
 
         ws.onmessage = (event) => {
             const data = JSON.parse(event.data);
+            if (dataCount === 0) console.log('First WebSocket message received:', data);
             dataCount++;
 
             // === UPDATE SPEED ===
@@ -915,13 +916,15 @@
             }
 
             // === UPDATE LAP NUMBER ===
-            if (data.currentLapNum !== undefined) {
-                document.getElementById('lapNumber').textContent = data.currentLapNum;
+            if (data.lapNumber !== undefined) {
+                const el = document.getElementById('lapNumber');
+                if (el) el.textContent = data.lapNumber;
             }
 
             // === UPDATE DRIVER STATUS ===
             if (data.driverStatus !== undefined) {
-                document.getElementById('carStatus').textContent = getDriverStatus(data.driverStatus);
+                const el = document.getElementById('carStatus');
+                if (el) el.textContent = getDriverStatus(data.driverStatus);
             }
 
             // === UPDATE TEMPERATURES ===
