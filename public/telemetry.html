@@ -228,6 +228,7 @@
             left: 50%;
             transform: translate(-50%, -40%);
             z-index: 10;
+            pointer-events: none;
         }
 
         .gauge-value {
@@ -395,8 +396,8 @@
         }
 
         canvas {
-            width: 100% !important;
-            height: 100% !important;
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
