@@ -681,174 +681,157 @@
         }
 
         // =====================================================================
-        // INITIALIZE CHARTS
+        // INITIALIZE CHARTS (Defensively)
         // =====================================================================
+        let speedGauge, rpmGauge, gforceChart, analysisChart;
+        let speedTrace, throttleTrace, brakeTrace;
+        const tempCharts = {};
 
-        // Main Gauges - Using RadialGauge
-        const speedGauge = new RadialGauge({
-            renderTo: 'speedGaugeChart',
-            width: 300,
-            height: 300,
-            units: "KM/H",
-            title: "",
-            minValue: 0,
-            maxValue: 360,
-            majorTicks: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360],
-            minorTicks: 4,
-            strokeTicks: true,
-            highlights: [
-                { from: 0, to: 120, color: "rgba(164, 210, 51, 0.2)" },
-                { from: 120, to: 240, color: "rgba(164, 210, 51, 0.3)" },
-                { from: 240, to: 360, color: "rgba(164, 210, 51, 0.5)" }
-            ],
-            ticksAngle: 270,
-            startAngle: 45,
-            colorMajorTicks: "#666",
-            colorMinorTicks: "#444",
-            colorTitle: "#a4d233",
-            colorUnits: "#888",
-            colorNumbers: "#a4d233",
-            colorPlate: "transparent",
-            borderShadowWidth: 0,
-            borders: false,
-            needleType: "arrow",
-            needleWidth: 3,
-            needleCircleSize: 8,
-            needleCircleOuter: true,
-            needleCircleInner: false,
-            animationDuration: 100,
-            animationRule: "linear",
-            colorNeedle: "#a4d233",
-            colorNeedleEnd: "#a4d233",
-            colorNeedleShadowDown: "#000",
-            colorNeedleCircleOuter: "#a4d233",
-            colorNeedleCircleOuterEnd: "#a4d233",
-            colorNeedleCircleInner: "#222",
-            colorNeedleCircleInnerEnd: "#222",
-            valueBox: false,
-            value: 0
-        }).draw();
+        function initDashboard() {
+            try {
+                console.log('Initializing Dashboard components...');
 
-        const rpmGauge = new RadialGauge({
-            renderTo: 'rpmGaugeChart',
-            width: 300,
-            height: 300,
-            units: "RPM",
-            title: "",
-            minValue: 0,
-            maxValue: 15000,
-            majorTicks: [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 15000],
-            minorTicks: 4,
-            strokeTicks: true,
-            highlights: [
-                { from: 0, to: 10000, color: "rgba(255, 59, 59, 0.2)" },
-                { from: 10000, to: 13000, color: "rgba(255, 59, 59, 0.3)" },
-                { from: 13000, to: 15000, color: "rgba(255, 59, 59, 0.6)" }
-            ],
-            ticksAngle: 270,
-            startAngle: 45,
-            colorMajorTicks: "#666",
-            colorMinorTicks: "#444",
-            colorTitle: "#ff3b3b",
-            colorUnits: "#888",
-            colorNumbers: "#ff3b3b",
-            colorPlate: "transparent",
-            borderShadowWidth: 0,
-            borders: false,
-            needleType: "arrow",
-            needleWidth: 3,
-            needleCircleSize: 8,
-            needleCircleOuter: true,
-            needleCircleInner: false,
-            animationDuration: 100,
-            animationRule: "linear",
-            colorNeedle: "#ff3b3b",
-            colorNeedleEnd: "#ff3b3b",
-            colorNeedleShadowDown: "#000",
-            colorNeedleCircleOuter: "#ff3b3b",
-            colorNeedleCircleOuterEnd: "#ff3b3b",
-            colorNeedleCircleInner: "#222",
-            colorNeedleCircleInnerEnd: "#222",
-            valueBox: false,
-            value: 0
-        }).draw();
+                // Main Gauges - Using RadialGauge (with library check)
+                if (typeof RadialGauge !== 'undefined') {
+                    speedGauge = new RadialGauge({
+                        renderTo: 'speedGaugeChart',
+                        width: 300,
+                        height: 300,
+                        units: "KM/H",
+                        minValue: 0,
+                        maxValue: 360,
+                        majorTicks: [0, 40, 80, 120, 160, 200, 240, 280, 320, 360],
+                        minorTicks: 4,
+                        strokeTicks: true,
+                        highlights: [
+                            { from: 0, to: 120, color: "rgba(164, 210, 51, 0.1)" },
+                            { from: 120, to: 240, color: "rgba(164, 210, 51, 0.2)" },
+                            { from: 240, to: 360, color: "rgba(164, 210, 51, 0.4)" }
+                        ],
+                        ticksAngle: 270,
+                        startAngle: 45,
+                        colorMajorTicks: "#444",
+                        colorMinorTicks: "#333",
+                        colorNumbers: "#a4d233",
+                        colorPlate: "transparent",
+                        borders: false,
+                        needleType: "arrow",
+                        needleWidth: 3,
+                        animationDuration: 50,
+                        animationRule: "linear",
+                        colorNeedle: "#a4d233",
+                        colorNeedleEnd: "#a4d233",
+                        valueBox: false,
+                        value: 0
+                    }).draw();
 
-        // Temperature Gauges
-        const tempCharts = {
-            engine: createTempGauge('tempEngine', '#ff3b3b'),
-            brake: createTempGauge('tempBrake', '#ff6b00'),
-            tyreFL: createTempGauge('tempTyreFL', '#00ff66'),
-            tyreFR: createTempGauge('tempTyreFR', '#00ff66'),
-            tyreRL: createTempGauge('tempTyreRL', '#00ff66'),
-            tyreRR: createTempGauge('tempTyreRR', '#00ff66')
-        };
-
-        // Trace Charts
-        const speedTrace = createTraceChart('speedTraceChart', '#a4d233', 360);
-        const throttleTrace = createTraceChart('throttleTraceChart', '#00ff66', 100, true);
-        const brakeTrace = createTraceChart('brakeTraceChart', '#ff3b3b', 100, true);
-
-        // G-Force Scatter
-        const gforceChart = new Chart(document.getElementById('gforceChart'), {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    data: [],
-                    backgroundColor: '#ffcc00',
-                    pointRadius: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
-                    y: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } }
+                    rpmGauge = new RadialGauge({
+                        renderTo: 'rpmGaugeChart',
+                        width: 300,
+                        height: 300,
+                        units: "RPM",
+                        minValue: 0,
+                        maxValue: 15000,
+                        majorTicks: [0, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 15000],
+                        minorTicks: 4,
+                        strokeTicks: true,
+                        highlights: [
+                            { from: 0, to: 10000, color: "rgba(255, 59, 59, 0.1)" },
+                            { from: 13000, to: 15000, color: "rgba(255, 59, 59, 0.5)" }
+                        ],
+                        ticksAngle: 270,
+                        startAngle: 45,
+                        colorMajorTicks: "#444",
+                        colorMinorTicks: "#333",
+                        colorNumbers: "#ff3b3b",
+                        colorPlate: "transparent",
+                        borders: false,
+                        needleType: "arrow",
+                        needleWidth: 3,
+                        animationDuration: 50,
+                        animationRule: "linear",
+                        colorNeedle: "#ff3b3b",
+                        colorNeedleEnd: "#ff3b3b",
+                        valueBox: false,
+                        value: 0
+                    }).draw();
+                } else {
+                    console.error('RadialGauge library not found!');
                 }
-            }
-        });
 
-        // Analysis Multi-Line Chart
-        const analysisChart = new Chart(document.getElementById('analysisChart'), {
-            type: 'line',
-            data: {
-                labels: timeLabels,
-                datasets: [
-                    { label: 'Speed', data: speedData, borderColor: '#a4d233', borderWidth: 2, yAxisID: 'ySpeed', pointRadius: 0, tension: 0.3 },
-                    { label: 'Throttle', data: throttleData, borderColor: '#00ff66', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 },
-                    { label: 'Brake', data: brakeData, borderColor: '#ff3b3b', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                animation: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { display: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
-                    ySpeed: { type: 'linear', position: 'left', min: 0, max: 360, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4d233', font: { size: 10 } } },
-                    yPercent: { type: 'linear', position: 'right', min: 0, max: 100, grid: { display: false }, ticks: { color: '#888', font: { size: 10 } } }
-                }
+                // Temp Gauges (Chart.js)
+                tempCharts.engine = createTempGauge('tempEngine', '#ff3b3b');
+                tempCharts.brake = createTempGauge('tempBrake', '#ff6b00');
+                tempCharts.tyreFL = createTempGauge('tempTyreFL', '#00ff66');
+                tempCharts.tyreFR = createTempGauge('tempTyreFR', '#00ff66');
+                tempCharts.tyreRL = createTempGauge('tempTyreRL', '#00ff66');
+                tempCharts.tyreRR = createTempGauge('tempTyreRR', '#00ff66');
+
+                // Traces
+                speedTrace = createTraceChart('speedTraceChart', '#a4d233', 360);
+                throttleTrace = createTraceChart('throttleTraceChart', '#00ff66', 100, true);
+                brakeTrace = createTraceChart('brakeTraceChart', '#ff3b3b', 100, true);
+
+                // G-Force
+                gforceChart = new Chart(document.getElementById('gforceChart'), {
+                    type: 'scatter',
+                    data: { datasets: [{ data: [], backgroundColor: '#ffcc00', pointRadius: 2 }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
+                            y: { min: -4, max: 4, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } }
+                        }
+                    }
+                });
+
+                // Analysis
+                analysisChart = new Chart(document.getElementById('analysisChart'), {
+                    type: 'line',
+                    data: {
+                        labels: timeLabels,
+                        datasets: [
+                            { label: 'Speed', data: speedData, borderColor: '#a4d233', borderWidth: 2, yAxisID: 'ySpeed', pointRadius: 0, tension: 0.3 },
+                            { label: 'Throttle', data: throttleData, borderColor: '#00ff66', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 },
+                            { label: 'Brake', data: brakeData, borderColor: '#ff3b3b', borderWidth: 1.5, yAxisID: 'yPercent', pointRadius: 0, tension: 0.1 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { display: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { display: false } },
+                            ySpeed: { type: 'linear', position: 'left', min: 0, max: 360, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4d233', font: { size: 10 } } },
+                            yPercent: { type: 'linear', position: 'right', min: 0, max: 100, grid: { display: false }, ticks: { color: '#888', font: { size: 10 } } }
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Initialization error:', e);
             }
-        });
+        }
+
+        initDashboard();
 
         // =====================================================================
         // HELPER FUNCTIONS
         // =====================================================================
-
-        function updateGauge(gauge, value) {
-            gauge.value = value;
+        function updateGaugeValue(gauge, value) {
+            if (gauge) gauge.value = value;
         }
 
         function updateTempGauge(chart, value, max, elId) {
-            const clamped = Math.min(value, max);
-            chart.data.datasets[0].data[0] = clamped;
-            chart.data.datasets[0].data[1] = max - clamped;
-            chart.update('none');
-            document.getElementById(elId).textContent = Math.round(value) + '°C';
+            if (!chart) return;
+            try {
+                const clamped = Math.min(value, max);
+                chart.data.datasets[0].data[0] = clamped;
+                chart.data.datasets[0].data[1] = max - clamped;
+                chart.update('none');
+                const el = document.getElementById(elId);
+                if (el) el.textContent = Math.round(value) + '°C';
+            } catch (e) { }
         }
 
         function formatLapTime(ms) {
@@ -867,10 +850,8 @@
         // =====================================================================
         // WEBSOCKET HANDLERS
         // =====================================================================
-
         ws.onopen = () => {
             console.log('WebSocket connected');
-            // Send driver info to server
             ws.send(JSON.stringify({
                 type: 'setDriver',
                 driverName: driverName,
@@ -879,106 +860,106 @@
             }));
         };
 
+        const liveDot = document.querySelector('.live-dot');
+
         ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (dataCount === 0) console.log('First WebSocket message received:', data);
-            dataCount++;
+            try {
+                const data = JSON.parse(event.data);
+                dataCount++;
 
-            // === UPDATE SPEED ===
-            const speed = Math.round(data.speed || 0);
-            document.getElementById('speedValue').textContent = speed;
-            updateGauge(speedGauge, speed);
-
-            // Track max/avg speed
-            if (speed > maxSpeed) maxSpeed = speed;
-            speedSum += speed;
-            document.getElementById('maxSpeed').textContent = maxSpeed;
-            document.getElementById('maxSpeedGauge').textContent = maxSpeed;
-            document.getElementById('avgSpeed').textContent = Math.round(speedSum / dataCount);
-
-            // === UPDATE RPM & GEAR ===
-            const rpm = Math.round(data.rpm || 0);
-            const gear = data.gear;
-            let gearText = gear === 0 ? 'N' : gear === -1 ? 'R' : gear;
-            document.getElementById('gearValue').textContent = gearText;
-            document.getElementById('rpmValue').textContent = rpm + ' RPM';
-            updateGauge(rpmGauge, rpm);
-
-            // Track max/avg RPM
-            if (rpm > maxRpm) maxRpm = rpm;
-            rpmSum += rpm;
-            document.getElementById('maxRpm').textContent = maxRpm;
-            document.getElementById('avgRpm').textContent = Math.round(rpmSum / dataCount);
-
-            // === UPDATE LAP TIME ===
-            if (data.currentLapTimeStr) {
-                document.getElementById('currentLap').textContent = data.currentLapTimeStr;
-            }
-
-            // === UPDATE LAP NUMBER ===
-            if (data.lapNumber !== undefined) {
-                const el = document.getElementById('lapNumber');
-                if (el) el.textContent = data.lapNumber;
-            }
-
-            // === UPDATE DRIVER STATUS ===
-            if (data.driverStatus !== undefined) {
-                const el = document.getElementById('carStatus');
-                if (el) el.textContent = getDriverStatus(data.driverStatus);
-            }
-
-            // === UPDATE TEMPERATURES ===
-            // Engine temp (from CarTelemetryData.m_engineTemperature)
-            updateTempGauge(tempCharts.engine, data.engineTemp || 0, 150, 'engineTempVal');
-
-            // Brake temps (from CarTelemetryData.m_brakesTemperature[4])
-            // Average of all 4 brakes
-            const brakeAvg = Math.round(((data.brakeFL || 0) + (data.brakeFR || 0) + (data.brakeRL || 0) + (data.brakeRR || 0)) / 4);
-            updateTempGauge(tempCharts.brake, brakeAvg, 1200, 'brakeTempVal');
-
-            // Tyre surface temps (from CarTelemetryData.m_tyresSurfaceTemperature[4])
-            // Order: RL, RR, FL, FR (as per F1 UDP spec)
-            updateTempGauge(tempCharts.tyreFL, data.tyreFL || 0, 120, 'tyreFLVal');
-            updateTempGauge(tempCharts.tyreFR, data.tyreFR || 0, 120, 'tyreFRVal');
-            updateTempGauge(tempCharts.tyreRL, data.tyreRL || 0, 120, 'tyreRLVal');
-            updateTempGauge(tempCharts.tyreRR, data.tyreRR || 0, 120, 'tyreRRVal');
-
-            // === UPDATE TRACE DATA ===
-            if (timeLabels.length >= MAX_DATA_POINTS) {
-                timeLabels.shift();
-                speedData.shift();
-                throttleData.shift();
-                brakeData.shift();
-                rpmData.shift();
-                if (gforceChart.data.datasets[0].data.length > 0) {
-                    gforceChart.data.datasets[0].data.shift();
+                // Visual Heartbeat
+                if (liveDot) {
+                    liveDot.style.opacity = '0.3';
+                    setTimeout(() => liveDot.style.opacity = '1', 50);
                 }
+
+                // === UPDATE SPEED ===
+                const speed = Math.round(data.speed || 0);
+                const speedEl = document.getElementById('speedValue');
+                if (speedEl) speedEl.textContent = speed;
+                updateGaugeValue(speedGauge, speed);
+
+                // Stats
+                if (speed > maxSpeed) maxSpeed = speed;
+                speedSum += speed;
+                const maxSpeedEl = document.getElementById('maxSpeed');
+                if (maxSpeedEl) maxSpeedEl.textContent = maxSpeed;
+                const maxSpeedGaugeEl = document.getElementById('maxSpeedGauge');
+                if (maxSpeedGaugeEl) maxSpeedGaugeEl.textContent = maxSpeed;
+                const avgSpeedEl = document.getElementById('avgSpeed');
+                if (avgSpeedEl) avgSpeedEl.textContent = Math.round(speedSum / dataCount);
+
+                // === UPDATE RPM & GEAR ===
+                const rpm = Math.round(data.rpm || 0);
+                const gear = data.gear;
+                let gearText = gear === 0 ? 'N' : gear === -1 ? 'R' : gear;
+                const gearEl = document.getElementById('gearValue');
+                if (gearEl) gearEl.textContent = gearText;
+                const rpmTextEl = document.getElementById('rpmValue');
+                if (rpmTextEl) rpmTextEl.textContent = rpm + ' RPM';
+                updateGaugeValue(rpmGauge, rpm);
+
+                // Stats
+                if (rpm > maxRpm) maxRpm = rpm;
+                rpmSum += rpm;
+                const maxRpmEl = document.getElementById('maxRpm');
+                if (maxRpmEl) maxRpmEl.textContent = maxRpm;
+                const avgRpmEl = document.getElementById('avgRpm');
+                if (avgRpmEl) avgRpmEl.textContent = Math.round(rpmSum / dataCount);
+
+                // === UPDATE LAP INFO ===
+                const curLapEl = document.getElementById('currentLap');
+                if (curLapEl && data.currentLapTimeStr) curLapEl.textContent = data.currentLapTimeStr;
+
+                const lapNumEl = document.getElementById('lapNumber');
+                if (lapNumEl && data.lapNumber !== undefined) lapNumEl.textContent = data.lapNumber;
+
+                // === UPDATE TEMPERATURES ===
+                updateTempGauge(tempCharts.engine, data.engineTemp || 0, 150, 'engineTempVal');
+                const brakeAvg = Math.round(((data.brakeFL || 0) + (data.brakeFR || 0) + (data.brakeRL || 0) + (data.brakeRR || 0)) / 4);
+                updateTempGauge(tempCharts.brake, brakeAvg, 1200, 'brakeTempVal');
+                updateTempGauge(tempCharts.tyreFL, data.tyreFL || 0, 120, 'tyreFLVal');
+                updateTempGauge(tempCharts.tyreFR, data.tyreFR || 0, 120, 'tyreFRVal');
+                updateTempGauge(tempCharts.tyreRL, data.tyreRL || 0, 120, 'tyreRLVal');
+                updateTempGauge(tempCharts.tyreRR, data.tyreRR || 0, 120, 'tyreRRVal');
+
+                // === UPDATE TRACE DATA ===
+                if (timeLabels.length >= MAX_DATA_POINTS) {
+                    timeLabels.shift();
+                    speedData.shift();
+                    throttleData.shift();
+                    brakeData.shift();
+                    rpmData.shift();
+                    if (gforceChart && gforceChart.data.datasets[0].data.length > 0) {
+                        gforceChart.data.datasets[0].data.shift();
+                    }
+                }
+
+                timeLabels.push('');
+                speedData.push(speed);
+                throttleData.push(data.throttle || 0);
+                brakeData.push(data.brake || 0);
+                rpmData.push(rpm);
+
+                if (gforceChart) {
+                    gforceChart.data.datasets[0].data.push({ x: data.gForceLateral || 0, y: data.gForceLongitudinal || 0 });
+                }
+
+                // === REFRESH CHARTS ===
+                if (speedTrace) speedTrace.update('none');
+                if (throttleTrace) throttleTrace.update('none');
+                if (brakeTrace) brakeTrace.update('none');
+                if (gforceChart) gforceChart.update('none');
+                if (analysisChart) analysisChart.update('none');
+
+            } catch (err) {
+                console.error('Data processing error:', err);
             }
-
-            timeLabels.push('');
-            speedData.push(speed);
-            throttleData.push(data.throttle || 0);
-            brakeData.push(data.brake || 0);
-            rpmData.push(rpm);
-
-            // G-Force (from CarMotionData.m_gForceLateral/Longitudinal)
-            gforceChart.data.datasets[0].data.push({
-                x: data.gForceLateral || 0,
-                y: data.gForceLongitudinal || 0
-            });
-
-            // === REFRESH ALL TRACE CHARTS ===
-            speedTrace.update('none');
-            throttleTrace.update('none');
-            brakeTrace.update('none');
-            gforceChart.update('none');
-            analysisChart.update('none');
         };
 
         ws.onerror = (err) => console.error('WebSocket error:', err);
-
         ws.onclose = () => {
-            console.log('WebSocket closed. Reconnecting in 3s...');
+            console.log('WebSocket closed. Reconnecting...');
             setTimeout(() => window.location.reload(), 3000);
         };
     </script>
