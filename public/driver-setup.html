@@ -205,25 +205,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Team</label>
-                    <select id="teamName" class="form-input">
-                        <option value="RED BULL RACING">RED BULL RACING</option>
-                        <option value="FERRARI">SCUDERIA FERRARI</option>
-                        <option value="MERCEDES">MERCEDES-AMG</option>
-                        <option value="MCLAREN">MCLAREN</option>
-                        <option value="ASTON MARTIN">ASTON MARTIN</option>
-                        <option value="ALPINE">ALPINE</option>
-                        <option value="WILLIAMS">WILLIAMS</option>
-                        <option value="VCARB">VCARB</option>
-                        <option value="SAUBER">SAUBER</option>
-                        <option value="HAAS">HAAS F1 TEAM</option>
-                        <option value="MY TEAM">PLAYER TEAM</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Session (Optional)</label>
-                    <input type="text" id="sessionName" class="form-input" placeholder="e.g. QUALIFYING" maxlength="50">
+                    <label class="form-label">Event Name</label>
+                    <input type="text" id="eventName" class="form-input" placeholder="e.g. SINGAPORE GP 2026"
+                        maxlength="50">
                 </div>
 
                 <button type="submit" class="btn-start">
@@ -239,24 +223,20 @@
     <script>
         // Pre-fill from localStorage if exists
         const savedDriver = localStorage.getItem('f1_driver_name');
-        const savedTeam = localStorage.getItem('f1_team_name');
-        const savedSession = localStorage.getItem('f1_session_name');
+        const savedEvent = localStorage.getItem('f1_event_name');
 
         if (savedDriver) document.getElementById('driverName').value = savedDriver;
-        if (savedTeam) document.getElementById('teamName').value = savedTeam;
-        if (savedSession) document.getElementById('sessionName').value = savedSession;
+        if (savedEvent) document.getElementById('eventName').value = savedEvent;
 
         document.getElementById('driverForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             const driverName = document.getElementById('driverName').value.trim();
-            const teamName = document.getElementById('teamName').value;
-            const sessionName = document.getElementById('sessionName').value.trim() || 'Free Practice';
+            const eventName = document.getElementById('eventName').value.trim() || 'Unknown Event';
 
             // Save to localStorage
             localStorage.setItem('f1_driver_name', driverName);
-            localStorage.setItem('f1_team_name', teamName);
-            localStorage.setItem('f1_session_name', sessionName);
+            localStorage.setItem('f1_event_name', eventName);
 
             // Open telemetry in a popup
             const width = 1400;

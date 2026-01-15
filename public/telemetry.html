@@ -622,8 +622,7 @@
 
         // Load driver info
         const driverName = localStorage.getItem('f1_driver_name') || 'Unknown Driver';
-        const teamName = localStorage.getItem('f1_team_name') || 'Unknown Team';
-        const sessionName = localStorage.getItem('f1_session_name') || 'Free Practice';
+        const eventName = localStorage.getItem('f1_event_name') || 'Unknown Event';
 
         function formatDriverName(name) {
             const parts = name.trim().split(' ');
@@ -635,8 +634,8 @@
         }
 
         document.getElementById('driverDisplay').innerHTML = formatDriverName(driverName);
-        document.getElementById('teamDisplay').textContent = teamName;
-        document.getElementById('sessionDisplay').textContent = sessionName;
+        document.getElementById('teamDisplay').textContent = "My Team"; // Default or remove
+        document.getElementById('sessionDisplay').textContent = eventName;
 
         // =====================================================================
         // CHART FACTORIES
@@ -798,7 +797,7 @@
 
         ws.onopen = () => {
             console.log('WS OPEN');
-            ws.send(JSON.stringify({ type: 'setDriver', driverName, sessionName, sessionId }));
+            ws.send(JSON.stringify({ type: 'setDriver', driverName, eventName, sessionId }));
         };
 
         ws.onmessage = (event) => {
