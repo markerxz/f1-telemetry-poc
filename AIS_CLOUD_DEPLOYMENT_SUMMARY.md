@@ -15,7 +15,7 @@
 - **Connection**: TLS/SSL (port 1522)
 - **TNS Alias**: `f1data_tpurgent`
 - **Username**: `ADMIN`
-- **Password**: `Mamarkrknstda4411!`
+- **Password**: `<HIDDEN>`
 - **Wallet Location (VM)**: `/home/opc/.oracle/wallets/f1data_wallet`
 - **Table**: `F1_LAP_TIMES` ✅ Created with indexes
 

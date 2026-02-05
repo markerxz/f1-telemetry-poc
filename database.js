@@ -14,7 +14,7 @@ try {
 // Database configuration
 const dbConfig = {
     user: process.env.DB_USER || 'ADMIN',
-    password: process.env.DB_PASSWORD || 'Mamarkrknstda4411!',
+    password: process.env.DB_PASSWORD,
     // AIS Cloud Thailand - f1data database
     connectString: process.env.DB_CONNECT_STRING || '(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-pathumthani-1.thaiaiscloud.com))(connect_data=(service_name=g2936204eb60dba_f1data_tpurgent.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))',
     walletLocation: process.env.WALLET_LOCATION || '/home/opc/.oracle/wallets/f1data_wallet'

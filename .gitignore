@@ -26,3 +26,12 @@ Thumbs.db
 dist/
 build/
 
+# Security - KEYS AND WALLETS
+*.key
+*.pem
+*.p12
+*.jks
+*.sso
+*.properties
+Wallet_*
+*.zip
