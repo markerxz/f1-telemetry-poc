@@ -10,7 +10,6 @@ Real-time telemetry dashboard for F1 25 game, hosted on Oracle Cloud Infrastruct
 - 🌍 **Track detection** (Singapore GP and all F1 tracks)
 - ☁️ **Cloud-hosted** on Oracle Linux 9
 - 📱 **Accessible** from any device on your network
-- 💾 **Database integration** (Oracle ADB) - Store lap times for analysis
 
 ## Quick Start
 
@@ -49,16 +48,6 @@ Open in your browser:
 http://140.245.116.86:3000
 ```
 
-### 4. Database Integration (Optional)
-
-To test lap time database storage:
-
-```
-http://localhost:3000/lap-data-preview.html
-```
-
-See `README_DATABASE.md` for complete setup guide.
-
 ## Update Deployment
 
 To update the server with latest code:
@@ -90,13 +79,9 @@ Press `Ctrl+C` to stop.
 
 - `server.js` - Main telemetry server (UDP + WebSocket + HTTP)
 - `public/index.html` - Dashboard UI
-- `public/lap-data-preview.html` - Database testing dashboard
 - `cli-inspector.js` - CLI tool for debugging telemetry
 - `deploy-to-vm.sh` - Automated deployment script
 - `package.json` - Node.js dependencies
-- `DATABASE_SETUP.md` - Database schema and SQL scripts
-- `TESTING_GUIDE.md` - Step-by-step testing guide
-- `README_DATABASE.md` - Database integration overview
 
 ## Troubleshooting
 

@@ -1,0 +1,510 @@
+/* F1 Telemetry - Responsive CSS */
+/* All sizes reduced by ~50% and made viewport-relative */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+    font-size: clamp(10px, 0.8vw, 14px);
+}
+
+/* Top Bar - Compact */
+.top-bar {
+    height: 50px;
+    background: #0f0f0f;
+    border-bottom: 2px solid #a4d233;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+}
+
+.branding {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ais-logo {
+    height: 35px;
+}
+
+.branding-text {
+    font-size: clamp(12px, 1.2vw, 18px);
+    font-weight: bold;
+    color: #a4d233;
+}
+
+.track-info {
+    text-align: center;
+    flex: 1;
+}
+
+.track-name {
+    font-size: clamp(14px, 1.5vw, 22px);
+    font-weight: bold;
+    color: #a4d233;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.driver-input-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.driver-input {
+    background: #0f0f0f;
+    border: 2px solid #a4d233;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: clamp(10px, 0.9vw, 13px);
+    color: #a4d233;
+    font-weight: bold;
+    text-align: center;
+    width: 140px;
+}
+
+.driver-input:focus {
+    outline: none;
+    border-color: #b5e344;
+    box-shadow: 0 0 10px rgba(164, 210, 51, 0.5);
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: clamp(10px, 0.9vw, 13px);
+    color: #888;
+}
+
+.live-dot {
+    width: 12px;
+    height: 12px;
+    background: #00ff00;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+}
+
+/* Main Layout - Responsive Grid - FIXED HEIGHT */
+.main-container {
+    display: grid;
+    grid-template-columns: 0.9fr 1.4fr 0.9fr;
+    height: calc(100vh - 90px);
+    gap: 10px;
+    padding: 10px;
+    overflow: hidden;
+}
+
+/* Columns */
+.left-column,
+.center-column,
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow: hidden;
+}
+
+/* Chart Boxes - Compact */
+.chart-box {
+    background: #0f0f0f;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 12px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.chart-title {
+    font-size: clamp(12px, 1.2vw, 18px);
+    color: #a4d233;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.chart-container {
+    height: calc(100% - 30px);
+}
+
+/* Speed/Lap Box - Compact */
+.speed-lap-box {
+    background: #0f0f0f;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.speed-label,
+.lap-label {
+    font-size: clamp(10px, 1vw, 14px);
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.speed-value {
+    font-size: clamp(40px, 5vw, 80px);
+    font-weight: bold;
+    color: #00d9ff;
+    line-height: 1;
+    font-family: 'Courier New', monospace;
+}
+
+.speed-unit {
+    font-size: clamp(14px, 1.5vw, 22px);
+    color: #666;
+    margin-top: 5px;
+}
+
+.lap-time {
+    font-size: clamp(30px, 4vw, 60px);
+    font-weight: bold;
+    color: #a4d233;
+    line-height: 1;
+    font-family: 'Courier New', monospace;
+}
+
+.lap-delta {
+    font-size: clamp(14px, 1.5vw, 22px);
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.lap-delta.faster {
+    color: #00ff00;
+}
+
+.lap-delta.slower {
+    color: #ff0000;
+}
+
+/* Gear/RPM Box - Compact */
+.gear-rpm-box {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: 10px;
+}
+
+.gear-box,
+.rpm-box {
+    background: #0f0f0f;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.gear-label,
+.rpm-label {
+    font-size: clamp(10px, 1vw, 14px);
+    color: #666;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.gear-value {
+    font-size: clamp(40px, 5vw, 80px);
+    font-weight: bold;
+    color: #00d9ff;
+    font-family: 'Courier New', monospace;
+}
+
+.drs-indicator {
+    font-size: clamp(10px, 1vw, 14px);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin-top: 8px;
+    font-weight: bold;
+}
+
+.drs-on {
+    background: #00ff00;
+    color: #000;
+}
+
+.drs-off {
+    background: #333;
+    color: #666;
+}
+
+.rpm-bar {
+    position: relative;
+    height: 40px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.rpm-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff00 0%, #ffff00 50%, #ff0000 100%);
+    transition: width 0.1s;
+}
+
+.rpm-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(14px, 1.5vw, 20px);
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 5px #000;
+}
+
+/* Controls Box - Compact */
+.controls-box {
+    background: #0f0f0f;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.steering-container {
+    text-align: center;
+}
+
+.steering-label,
+.pedal-label {
+    font-size: clamp(9px, 0.9vw, 12px);
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.steering-wheel {
+    width: 60px;
+    height: 60px;
+    margin: 5px auto;
+    background: #1a1a1a;
+    border: 3px solid #00d9ff;
+    border-radius: 50%;
+    position: relative;
+    transition: transform 0.1s;
+}
+
+.steering-grip {
+    position: absolute;
+    width: 4px;
+    height: 30px;
+    background: #00d9ff;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.steering-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(10px, 1vw, 14px);
+    font-weight: bold;
+    color: #00d9ff;
+}
+
+.steering-value {
+    font-size: clamp(10px, 1vw, 13px);
+    color: #888;
+    margin-top: 5px;
+}
+
+.pedal-bar {
+    height: 80px;
+    width: 100%;
+    background: #1a1a1a;
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.pedal-fill {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    transition: height 0.1s;
+}
+
+.throttle-fill {
+    background: #00ff00;
+}
+
+.brake-fill {
+    background: #ff0000;
+}
+
+.pedal-value {
+    font-size: clamp(11px, 1.1vw, 15px);
+    color: #888;
+    margin-top: 5px;
+    text-align: center;
+}
+
+/* Data Boxes - Compact */
+.data-box {
+    background: #0f0f0f;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.data-title {
+    font-size: clamp(12px, 1.2vw, 18px);
+    color: #a4d233;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.sectors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.sector-item {
+    background: #1a1a1a;
+}
+
+.lap-history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 8px;
+    margin-bottom: 5px;
+    background: #1a1a1a;
+    border-radius: 5px;
+    font-size: clamp(10px, 1vw, 13px);
+    font-family: 'Courier New', monospace;
+}
+
+.lap-history-item.best {
+    background: #a4d233;
+    color: #000;
+}
+
+/* Track Map - Compact */
+.track-map-container {
+    position: relative;
+    background: #0a0a0a;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+}
+
+.track-map {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.car-position {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff0080;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(255, 0, 128, 1);
+}
+
+/* Telemetry Grid - Compact */
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.telemetry-item {
+    background: #1a1a1a;
+    padding: 8px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.telemetry-label {
+    font-size: clamp(8px, 0.8vw, 11px);
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.telemetry-value {
+    font-size: clamp(14px, 1.5vw, 22px);
+    font-weight: bold;
+    color: #ff9900;
+    font-family: 'Courier New', monospace;
+}
+
+/* Bottom Bar - Compact */
+.bottom-bar {
+    height: 40px;
+    background: #0f0f0f;
+    border-top: 2px solid #a4d233;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.telemetry-stats {
+    display: flex;
+    gap: 20px;
+    font-size: clamp(10px, 1vw, 14px);
+    color: #666;
+}
+
+.stat-label {
+    color: #666;
+    margin-right: 5px;
+}
+
+.stat-value {
+    color: #a4d233;
+    font-weight: bold;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #00d9ff;
+    border-radius: 3px;
+}
